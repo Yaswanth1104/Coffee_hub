@@ -3,7 +3,18 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.models.admin import Admin
-from app.schemas.admin import AdminCreate, AdminResponse
+from app.schemas.admin import (
+    AdminCreate,
+    AdminResponse,
+    AdminLogin,
+    TokenResponse,
+)
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+)
+from app.core.dependencies import get_current_admin
 
 
 router = APIRouter(
@@ -20,6 +31,7 @@ def create_admin(
     admin: AdminCreate,
     db: Session = Depends(get_db),
 ):
+    # Check if email already exists
     existing_admin = db.query(Admin).filter(
         Admin.email == admin.email
     ).first()
@@ -30,10 +42,15 @@ def create_admin(
             detail="Admin with this email already exists",
         )
 
+    # Hash password before storing
+    hashed_password = hash_password(
+        admin.password
+    )
+
     new_admin = Admin(
         name=admin.name,
         email=admin.email,
-        password=admin.password,
+        password=hashed_password,
     )
 
     db.add(new_admin)
@@ -49,6 +66,7 @@ def create_admin(
 @router.get("/", response_model=list[AdminResponse])
 def get_admins(
     db: Session = Depends(get_db),
+    current_admin: dict = Depends(get_current_admin),
 ):
     return db.query(Admin).all()
 
@@ -60,6 +78,7 @@ def get_admins(
 def get_admin(
     admin_id: int,
     db: Session = Depends(get_db),
+    current_admin: dict = Depends(get_current_admin),
 ):
     admin = db.query(Admin).filter(
         Admin.id == admin_id
@@ -82,6 +101,7 @@ def update_admin(
     admin_id: int,
     admin_data: AdminCreate,
     db: Session = Depends(get_db),
+    current_admin: dict = Depends(get_current_admin),
 ):
     admin = db.query(Admin).filter(
         Admin.id == admin_id
@@ -93,7 +113,7 @@ def update_admin(
             detail="Admin not found",
         )
 
-    # Check if email is already used by another admin
+    # Check if email belongs to another admin
     existing_admin = db.query(Admin).filter(
         Admin.email == admin_data.email,
         Admin.id != admin_id,
@@ -107,12 +127,64 @@ def update_admin(
 
     admin.name = admin_data.name
     admin.email = admin_data.email
-    admin.password = admin_data.password
+
+    # Hash the new password
+    admin.password = hash_password(
+        admin_data.password
+    )
 
     db.commit()
     db.refresh(admin)
 
     return admin
+
+
+# -------------------------
+# ADMIN LOGIN
+# -------------------------
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+)
+def login_admin(
+    login_data: AdminLogin,
+    db: Session = Depends(get_db),
+):
+    # Find admin by email
+    admin = db.query(Admin).filter(
+        Admin.email == login_data.email
+    ).first()
+
+    if admin is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+        )
+
+    # Verify password
+    password_valid = verify_password(
+        login_data.password,
+        admin.password,
+    )
+
+    if not password_valid:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+        )
+
+    # Create JWT token
+    access_token = create_access_token(
+        data={
+            "sub": str(admin.id),
+            "email": admin.email,
+        }
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
 
 
 # -------------------------
@@ -122,6 +194,7 @@ def update_admin(
 def delete_admin(
     admin_id: int,
     db: Session = Depends(get_db),
+    current_admin: dict = Depends(get_current_admin),
 ):
     admin = db.query(Admin).filter(
         Admin.id == admin_id
