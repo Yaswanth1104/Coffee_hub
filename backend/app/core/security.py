@@ -2,6 +2,15 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 from jose import jwt, JWTError
+import os
+from dotenv import load_dotenv
+
+
+# -------------------------
+# LOAD ENVIRONMENT VARIABLES
+# -------------------------
+
+load_dotenv()
 
 
 # -------------------------
@@ -32,8 +41,14 @@ def verify_password(
 # JWT CONFIGURATION
 # -------------------------
 
-SECRET_KEY = "coffeehub-secret-key"
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+
+
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not configured in the environment"
+    )
 
 
 # -------------------------

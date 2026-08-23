@@ -4,6 +4,7 @@ from app.database.connection import Base, engine
 
 from app.routes.customer import router as customer_router
 from app.routes.admin import router as admin_router
+from app.routes.coffee import router as coffee_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -18,13 +19,18 @@ app = FastAPI(
 
 app.include_router(customer_router)
 app.include_router(admin_router)
+app.include_router(coffee_router)
 
 
 @app.get("/")
 def root():
-    return {"message": "CoffeeHub API is running"}
+    return {
+        "message": "CoffeeHub API is running"
+    }
 
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy"
+    }
