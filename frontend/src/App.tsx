@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/admin/Customers";
+import CoffeeManagement from "./pages/admin/CoffeeManagement";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -113,6 +114,10 @@ function HomePage() {
   );
 }
 
+/* --------------------------------
+   Protected Dashboard
+--------------------------------- */
+
 function ProtectedDashboard() {
   const token = localStorage.getItem("access_token");
 
@@ -122,6 +127,11 @@ function ProtectedDashboard() {
 
   return <Dashboard />;
 }
+
+/* --------------------------------
+   Protected Customers
+--------------------------------- */
+
 function ProtectedCustomers() {
   const token = localStorage.getItem("access_token");
 
@@ -132,9 +142,28 @@ function ProtectedCustomers() {
   return <Customers />;
 }
 
+/* --------------------------------
+   Protected Coffee Management
+--------------------------------- */
+
+function ProtectedCoffeeManagement() {
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <CoffeeManagement />;
+}
+
+/* --------------------------------
+   Main App
+--------------------------------- */
+
 function App() {
   return (
     <Routes>
+
       {/* Public Home */}
       <Route
         path="/"
@@ -152,15 +181,25 @@ function App() {
         path="/dashboard"
         element={<ProtectedDashboard />}
       />
+
+      {/* Protected Customers */}
       <Route
         path="/customers"
         element={<ProtectedCustomers />}
       />
+
+      {/* Protected Coffee Management */}
+      <Route
+        path="/coffees"
+        element={<ProtectedCoffeeManagement />}
+      />
+
       {/* Unknown routes */}
       <Route
         path="*"
         element={<Navigate to="/" replace />}
       />
+
     </Routes>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Customer {
   id: number;
@@ -15,31 +15,29 @@ interface CustomerForm {
 }
 
 function Customers() {
+  const navigate = useNavigate();
+
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Add / Edit form
-  const [showForm, setShowForm] = useState(false);
-
-  // null = Add mode
-  // number = Edit mode
-  const [editingCustomerId, setEditingCustomerId] =
-    useState<number | null>(null);
-
-  const [savingCustomer, setSavingCustomer] = useState(false);
-
   const [successMessage, setSuccessMessage] = useState("");
 
-  const [formData, setFormData] = useState<CustomerForm>({
+  // Form state
+  const [showForm, setShowForm] = useState(false);
+  const [editingCustomer, setEditingCustomer] =
+    useState<Customer | null>(null);
+
+  const [form, setForm] = useState<CustomerForm>({
     name: "",
     email: "",
     phone: "",
   });
 
-  // ==========================================
-  // GET CUSTOMERS
-  // ==========================================
+  const [saving, setSaving] = useState(false);
+
+  // =========================
+  // FETCH CUSTOMERS
+  // =========================
 
   const fetchCustomers = async () => {
     try {
@@ -80,37 +78,14 @@ function Customers() {
     }
   };
 
-  // ==========================================
-  // INITIAL LOAD
-  // ==========================================
-
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  // ==========================================
-  // HANDLE INPUT CHANGE
-  // ==========================================
-
-  const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = event.target;
-
-    setFormData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  // ==========================================
+  // =========================
   // OPEN ADD FORM
-  // ==========================================
+  // =========================
 
-  const handleOpenAddForm = () => {
-    setEditingCustomerId(null);
+  const openAddForm = () => {
+    setEditingCustomer(null);
 
-    setFormData({
+    setForm({
       name: "",
       email: "",
       phone: "",
@@ -118,18 +93,17 @@ function Customers() {
 
     setError("");
     setSuccessMessage("");
-
     setShowForm(true);
   };
 
-  // ==========================================
+  // =========================
   // OPEN EDIT FORM
-  // ==========================================
+  // =========================
 
-  const handleEditCustomer = (customer: Customer) => {
-    setEditingCustomerId(customer.id);
+  const openEditForm = (customer: Customer) => {
+    setEditingCustomer(customer);
 
-    setFormData({
+    setForm({
       name: customer.name,
       email: customer.email,
       phone: customer.phone || "",
@@ -137,19 +111,18 @@ function Customers() {
 
     setError("");
     setSuccessMessage("");
-
     setShowForm(true);
   };
 
-  // ==========================================
-  // CANCEL FORM
-  // ==========================================
+  // =========================
+  // CLOSE FORM
+  // =========================
 
-  const handleCancelForm = () => {
+  const closeForm = () => {
     setShowForm(false);
-    setEditingCustomerId(null);
+    setEditingCustomer(null);
 
-    setFormData({
+    setForm({
       name: "",
       email: "",
       phone: "",
@@ -158,17 +131,32 @@ function Customers() {
     setError("");
   };
 
-  // ==========================================
+  // =========================
+  // FORM INPUT CHANGE
+  // =========================
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = event.target;
+
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  };
+
+  // =========================
   // ADD / UPDATE CUSTOMER
-  // ==========================================
+  // =========================
 
   const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
+    event: React.FormEvent
   ) => {
     event.preventDefault();
 
     try {
-      setSavingCustomer(true);
+      setSaving(true);
       setError("");
       setSuccessMessage("");
 
@@ -178,128 +166,50 @@ function Customers() {
         throw new Error("Authentication required");
       }
 
-      // --------------------------------------
-      // ADD CUSTOMER
-      // --------------------------------------
+      const url = editingCustomer
+        ? `http://127.0.0.1:8000/customers/${editingCustomer.id}`
+        : "http://127.0.0.1:8000/customers/";
 
-      if (editingCustomerId === null) {
-        const response = await fetch(
-          "http://127.0.0.1:8000/customers/",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-            }),
-          }
-        );
+      const method = editingCustomer ? "PUT" : "POST";
 
-        if (!response.ok) {
-          let message = "Failed to add customer";
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+        }),
+      });
 
-          try {
-            const errorData = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
 
-            if (errorData?.detail) {
-              if (Array.isArray(errorData.detail)) {
-                message = errorData.detail
-                  .map(
-                    (item: { msg?: string }) =>
-                      item.msg
-                  )
-                  .join(", ");
-              } else {
-                message = errorData.detail;
-              }
-            }
-          } catch {
-            // Keep default error
-          }
-
-          throw new Error(message);
+        if (errorData?.detail) {
+          throw new Error(
+            typeof errorData.detail === "string"
+              ? errorData.detail
+              : "Failed to save customer"
+          );
         }
 
-        await response.json();
+        throw new Error("Failed to save customer");
+      }
 
+      if (editingCustomer) {
+        setSuccessMessage(
+          "Customer updated successfully!"
+        );
+      } else {
         setSuccessMessage(
           "Customer added successfully!"
         );
       }
 
-      // --------------------------------------
-      // UPDATE CUSTOMER
-      // --------------------------------------
-
-      else {
-        const response = await fetch(
-          `http://127.0.0.1:8000/customers/${editingCustomerId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          let message = "Failed to update customer";
-
-          try {
-            const errorData = await response.json();
-
-            if (errorData?.detail) {
-              if (Array.isArray(errorData.detail)) {
-                message = errorData.detail
-                  .map(
-                    (item: { msg?: string }) =>
-                      item.msg
-                  )
-                  .join(", ");
-              } else {
-                message = errorData.detail;
-              }
-            }
-          } catch {
-            // Keep default error
-          }
-
-          throw new Error(message);
-        }
-
-        await response.json();
-
-        setSuccessMessage(
-          "Customer updated successfully!"
-        );
-      }
-
-      // --------------------------------------
-      // RESET FORM
-      // --------------------------------------
-
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-      });
-
-      setShowForm(false);
-      setEditingCustomerId(null);
-
-      // --------------------------------------
-      // REFRESH CUSTOMER LIST
-      // --------------------------------------
+      closeForm();
 
       await fetchCustomers();
     } catch (error) {
@@ -309,65 +219,146 @@ function Customers() {
           : "Something went wrong"
       );
     } finally {
-      setSavingCustomer(false);
+      setSaving(false);
     }
   };
 
-  // ==========================================
-  // UI
-  // ==========================================
+  // =========================
+  // DELETE CUSTOMER
+  // =========================
+
+  const deleteCustomer = async (
+    customerId: number
+  ) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this customer?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setError("");
+      setSuccessMessage("");
+
+      const token = localStorage.getItem("access_token");
+
+      if (!token) {
+        throw new Error("Authentication required");
+      }
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/customers/${customerId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete customer");
+      }
+
+      setCustomers((currentCustomers) =>
+        currentCustomers.filter(
+          (customer) => customer.id !== customerId
+        )
+      );
+
+      setSuccessMessage(
+        "Customer deleted successfully!"
+      );
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong"
+      );
+    }
+  };
+
+  // =========================
+  // INITIAL LOAD
+  // =========================
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100">
 
-      {/* ======================================
+      {/* =========================
           HEADER
-      ======================================= */}
+      ========================= */}
 
       <header className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-6 py-5">
+        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
 
-          <h1 className="text-2xl font-bold text-amber-900">
-            Customer Management
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold text-amber-900">
+              Customer Management
+            </h1>
 
-          <p className="text-gray-500 mt-1">
-            Manage CoffeeHub customers
-          </p>
+            <p className="text-gray-500 mt-1">
+              Manage CoffeeHub customers
+            </p>
+          </div>
+
+          {/* =========================
+              NAVIGATION BUTTONS
+          ========================= */}
+
+          <div className="flex items-center gap-3">
+
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="border border-gray-300 hover:bg-gray-100 text-gray-700 px-5 py-2 rounded-lg font-medium"
+            >
+              ← Dashboard
+            </button>
+
+            <button
+              onClick={() => navigate("/")}
+              className="border border-gray-300 hover:bg-gray-100 text-gray-700 px-5 py-2 rounded-lg font-medium"
+            >
+              View Website
+            </button>
+
+          </div>
 
         </div>
       </header>
 
-      {/* ======================================
-          MAIN
-      ======================================= */}
+      {/* =========================
+          MAIN CONTENT
+      ========================= */}
 
       <main className="max-w-6xl mx-auto px-6 py-8">
 
-        {/* ====================================
-            SUCCESS MESSAGE
-        ===================================== */}
+        {/* SUCCESS MESSAGE */}
 
         {successMessage && (
-          <div className="mb-5 bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-lg">
+          <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-5 mb-6">
             {successMessage}
           </div>
         )}
 
-        {/* ====================================
-            GENERAL ERROR
-        ===================================== */}
+        {/* ERROR MESSAGE */}
 
         {error && !showForm && (
-          <div className="mb-5 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-lg">
+          <div className="bg-white rounded-xl p-6 text-center shadow-sm mb-6">
 
-            <p className="mb-3">
+            <p className="text-red-600 mb-4">
               {error}
             </p>
 
             <button
               onClick={fetchCustomers}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              className="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2 rounded-lg"
             >
               Try Again
             </button>
@@ -375,140 +366,139 @@ function Customers() {
           </div>
         )}
 
-        {/* ====================================
+        {/* LOADING */}
+
+        {loading && (
+          <div className="bg-white rounded-xl p-8 text-center shadow-sm">
+            <p className="text-gray-500">
+              Loading customers...
+            </p>
+          </div>
+        )}
+
+        {/* =========================
             ADD / EDIT FORM
-        ===================================== */}
+        ========================= */}
 
         {showForm && (
-          <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
 
-            {/* Form Header */}
+            <div className="flex items-center justify-between mb-6">
 
-            <div className="px-6 py-5 border-b">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {editingCustomer
+                    ? "Edit Customer"
+                    : "Add Customer"}
+                </h2>
 
-              <h2 className="text-xl font-semibold text-gray-800">
-                {editingCustomerId === null
-                  ? "Add Customer"
-                  : "Edit Customer"}
-              </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {editingCustomer
+                    ? "Update customer information"
+                    : "Enter customer information"}
+                </p>
+              </div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                {editingCustomerId === null
-                  ? "Enter customer details below"
-                  : "Update customer details below"}
-              </p>
+              <button
+                type="button"
+                onClick={closeForm}
+                className="text-gray-500 hover:text-gray-800 text-xl"
+              >
+                ✕
+              </button>
 
             </div>
 
-            {/* Form */}
+            {/* FORM ERROR */}
 
-            <form
-              onSubmit={handleSubmit}
-              className="p-6"
-            >
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-4 mb-5">
+                {error}
+              </div>
+            )}
 
-              {/* Form Error */}
+            <form onSubmit={handleSubmit}>
 
-              {error && (
-                <div className="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                  {error}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                {/* Name */}
+                {/* NAME */}
 
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Name
                   </label>
 
                   <input
-                    id="name"
-                    name="name"
                     type="text"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter customer name"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-700"
+                    placeholder="Enter customer name"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-700"
                   />
                 </div>
 
-                {/* Email */}
+                {/* EMAIL */}
 
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email
                   </label>
 
                   <input
-                    id="email"
-                    name="email"
                     type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter customer email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-700"
+                    placeholder="Enter customer email"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-700"
                   />
                 </div>
 
-                {/* Phone */}
+                {/* PHONE */}
 
                 <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone
                   </label>
 
                   <input
-                    id="phone"
+                    type="text"
                     name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleInputChange}
+                    value={form.phone}
+                    onChange={handleChange}
                     placeholder="Enter phone number"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-700"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-700"
                   />
                 </div>
 
               </div>
 
-              {/* Buttons */}
+              {/* FORM BUTTONS */}
 
               <div className="flex justify-end gap-3 mt-6">
 
                 <button
                   type="button"
-                  onClick={handleCancelForm}
-                  disabled={savingCustomer}
-                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  onClick={closeForm}
+                  disabled={saving}
+                  className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  disabled={savingCustomer}
+                  disabled={saving}
                   className="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2.5 rounded-lg font-medium disabled:opacity-50"
                 >
-                  {savingCustomer
-                    ? editingCustomerId === null
-                      ? "Adding..."
-                      : "Updating..."
-                    : editingCustomerId === null
-                    ? "Add Customer"
-                    : "Update Customer"}
+                  {saving
+                    ? "Saving..."
+                    : editingCustomer
+                    ? "Update Customer"
+                    : "Add Customer"}
                 </button>
 
               </div>
@@ -518,89 +508,63 @@ function Customers() {
           </div>
         )}
 
-        {/* ====================================
-            LOADING
-        ===================================== */}
-
-        {loading && (
-          <div className="bg-white rounded-xl p-8 text-center shadow-sm">
-
-            <p className="text-gray-500">
-              Loading customers...
-            </p>
-
-          </div>
-        )}
-
-        {/* ====================================
+        {/* =========================
             CUSTOMER TABLE
-        ===================================== */}
+        ========================= */}
 
         {!loading && (
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
 
-            {/* Table Header */}
+            {/* TABLE HEADER */}
 
             <div className="px-6 py-5 border-b flex items-center justify-between">
 
               <div>
-
                 <h2 className="text-xl font-semibold text-gray-800">
                   Customers
                 </h2>
 
                 <p className="text-sm text-gray-500 mt-1">
                   {customers.length} customer
-                  {customers.length !== 1
-                    ? "s"
-                    : ""}
+                  {customers.length !== 1 ? "s" : ""}
                 </p>
-
               </div>
 
-              {/* Add Customer */}
-
-              {!showForm && (
-                <button
-                  onClick={handleOpenAddForm}
-                  className="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2 rounded-lg font-medium"
-                >
-                  + Add Customer
-                </button>
-              )}
+              <button
+                onClick={openAddForm}
+                className="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2 rounded-lg font-medium"
+              >
+                + Add Customer
+              </button>
 
             </div>
 
-            {/* ==================================
-                NO CUSTOMERS
-            =================================== */}
+            {/* EMPTY STATE */}
 
             {customers.length === 0 ? (
+
               <div className="p-10 text-center">
 
-                <p className="text-gray-500 mb-5">
+                <p className="text-gray-500">
                   No customers found.
                 </p>
 
-                {!showForm && (
-                  <button
-                    onClick={handleOpenAddForm}
-                    className="bg-amber-800 hover:bg-amber-900 text-white px-5 py-2 rounded-lg"
-                  >
-                    + Add First Customer
-                  </button>
-                )}
+                <button
+                  onClick={openAddForm}
+                  className="mt-4 bg-amber-800 hover:bg-amber-900 text-white px-5 py-2 rounded-lg"
+                >
+                  Add First Customer
+                </button>
 
               </div>
-            ) : (
 
-              /* ==================================
-                 CUSTOMER TABLE
-              =================================== */
+            ) : (
 
               <div className="overflow-x-auto">
 
                 <table className="w-full">
+
+                  {/* TABLE HEAD */}
 
                   <thead className="bg-gray-50 border-b">
 
@@ -626,6 +590,8 @@ function Customers() {
 
                   </thead>
 
+                  {/* TABLE BODY */}
+
                   <tbody>
 
                     {customers.map((customer) => (
@@ -635,30 +601,53 @@ function Customers() {
                         className="border-b last:border-b-0 hover:bg-gray-50"
                       >
 
+                        {/* NAME */}
+
                         <td className="px-6 py-4 font-medium text-gray-800">
                           {customer.name}
                         </td>
+
+                        {/* EMAIL */}
 
                         <td className="px-6 py-4 text-gray-600">
                           {customer.email}
                         </td>
 
+                        {/* PHONE */}
+
                         <td className="px-6 py-4 text-gray-600">
                           {customer.phone || "-"}
                         </td>
 
+                        {/* ACTIONS */}
+
                         <td className="px-6 py-4">
 
-                          <button
-                            onClick={() =>
-                              handleEditCustomer(
-                                customer
-                              )
-                            }
-                            className="text-amber-800 hover:text-amber-950 font-medium"
-                          >
-                            Edit
-                          </button>
+                          <div className="flex items-center gap-4">
+
+                            {/* EDIT */}
+
+                            <button
+                              onClick={() =>
+                                openEditForm(customer)
+                              }
+                              className="text-amber-800 hover:text-amber-950 font-medium"
+                            >
+                              Edit
+                            </button>
+
+                            {/* DELETE */}
+
+                            <button
+                              onClick={() =>
+                                deleteCustomer(customer.id)
+                              }
+                              className="text-red-600 hover:text-red-800 font-medium"
+                            >
+                              Delete
+                            </button>
+
+                          </div>
 
                         </td>
 
