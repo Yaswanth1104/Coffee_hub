@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.connection import Base, engine
 
@@ -16,6 +17,26 @@ app = FastAPI(
     description="CoffeeHub Customer & Admin Management System",
 )
 
+
+# -------------------------
+# CORS CONFIGURATION
+# -------------------------
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# -------------------------
+# ROUTES
+# -------------------------
 
 app.include_router(customer_router)
 app.include_router(admin_router)

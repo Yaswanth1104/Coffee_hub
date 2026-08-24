@@ -15,12 +15,13 @@ router = APIRouter(
 
 # -------------------------
 # CREATE COFFEE
+# ADMIN ONLY
 # -------------------------
 @router.post("/", response_model=CoffeeResponse)
 def create_coffee(
     coffee: CoffeeCreate,
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
+    current_admin=Depends(get_current_admin),
 ):
     new_coffee = Coffee(
         name=coffee.name,
@@ -39,23 +40,23 @@ def create_coffee(
 
 # -------------------------
 # GET ALL COFFEES
+# PUBLIC
 # -------------------------
 @router.get("/", response_model=list[CoffeeResponse])
 def get_coffees(
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
 ):
     return db.query(Coffee).all()
 
 
 # -------------------------
 # GET COFFEE BY ID
+# PUBLIC
 # -------------------------
 @router.get("/{coffee_id}", response_model=CoffeeResponse)
 def get_coffee(
     coffee_id: int,
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
 ):
     coffee = db.query(Coffee).filter(
         Coffee.id == coffee_id
@@ -72,13 +73,14 @@ def get_coffee(
 
 # -------------------------
 # UPDATE COFFEE
+# ADMIN ONLY
 # -------------------------
 @router.put("/{coffee_id}", response_model=CoffeeResponse)
 def update_coffee(
     coffee_id: int,
     coffee_data: CoffeeCreate,
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
+    current_admin=Depends(get_current_admin),
 ):
     coffee = db.query(Coffee).filter(
         Coffee.id == coffee_id
@@ -104,12 +106,13 @@ def update_coffee(
 
 # -------------------------
 # DELETE COFFEE
+# ADMIN ONLY
 # -------------------------
 @router.delete("/{coffee_id}")
 def delete_coffee(
     coffee_id: int,
     db: Session = Depends(get_db),
-    current_admin: dict = Depends(get_current_admin),
+    current_admin=Depends(get_current_admin),
 ):
     coffee = db.query(Coffee).filter(
         Coffee.id == coffee_id

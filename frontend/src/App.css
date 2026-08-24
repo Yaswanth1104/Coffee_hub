@@ -1,0 +1,1615 @@
+/* =========================================================
+   COFFEEHUB — PREMIUM EDITORIAL DESIGN
+   ========================================================= */
+
+:root {
+  --espresso: #2c170e;
+  --espresso-2: #412317;
+  --brown: #70462f;
+  --caramel: #a8754b;
+  --cream: #f5eee4;
+  --cream-2: #eee2d3;
+  --paper: #fffdf9;
+  --text: #2c211b;
+  --muted: #77665b;
+  --line: rgba(44, 23, 14, 0.12);
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--text);
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.coffee-site {
+  overflow: hidden;
+}
+
+.coffee-container {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.coffee-hero {
+  position: relative;
+  min-height: calc(100vh - 80px);
+
+  background:
+    radial-gradient(
+      circle at 75% 30%,
+      rgba(168, 117, 75, 0.18),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 20% 70%,
+      rgba(255, 255, 255, 0.6),
+      transparent 35%
+    ),
+    var(--cream);
+
+  display: flex;
+  align-items: center;
+}
+
+.coffee-hero-inner {
+  min-height: calc(100vh - 80px);
+
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  align-items: center;
+
+  gap: 40px;
+
+  padding-top: 70px;
+  padding-bottom: 80px;
+}
+
+.coffee-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.coffee-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: var(--brown);
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.coffee-eyebrow-line {
+  width: 38px;
+  height: 1px;
+  background: var(--brown);
+}
+
+.coffee-hero-title {
+  margin: 28px 0 25px;
+
+  color: var(--espresso);
+
+  font-size: clamp(4rem, 7vw, 7.2rem);
+  font-weight: 500;
+
+  line-height: 0.92;
+  letter-spacing: -0.075em;
+}
+
+.coffee-hero-title em,
+.coffee-section-heading em,
+.coffee-menu-heading em,
+.coffee-experience-copy em,
+.coffee-final-content em,
+.coffee-intro h2 em {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.coffee-hero-description {
+  max-width: 520px;
+
+  color: var(--muted);
+
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.coffee-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+
+  margin-top: 35px;
+}
+
+.coffee-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 25px;
+
+  padding: 16px 21px;
+
+  border-radius: 4px;
+
+  background: var(--espresso);
+  color: white;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  box-shadow:
+    0 12px 25px rgba(44, 23, 14, 0.2);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.coffee-primary-action:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 18px 35px rgba(44, 23, 14, 0.28);
+}
+
+.coffee-primary-action span {
+  font-size: 18px;
+}
+
+.coffee-secondary-action {
+  color: var(--espresso);
+
+  font-size: 13px;
+  font-weight: 700;
+
+  border-bottom: 1px solid var(--espresso);
+
+  padding-bottom: 5px;
+}
+
+.coffee-hero-stats {
+  display: flex;
+
+  margin-top: 65px;
+  padding-top: 22px;
+
+  border-top: 1px solid var(--line);
+
+  gap: 55px;
+}
+
+.coffee-hero-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.coffee-hero-stats strong {
+  color: var(--espresso);
+
+  font-family: Georgia, serif;
+  font-size: 20px;
+}
+
+.coffee-hero-stats span {
+  color: var(--muted);
+
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+
+/* =========================================================
+   HERO VISUAL
+   ========================================================= */
+
+.coffee-hero-visual {
+  position: relative;
+
+  min-height: 600px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coffee-hero-glow {
+  position: absolute;
+
+  width: 470px;
+  height: 470px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(167, 111, 67, 0.32),
+      rgba(167, 111, 67, 0.08) 45%,
+      transparent 70%
+    );
+
+  filter: blur(2px);
+}
+
+.coffee-orbit {
+  position: absolute;
+
+  border: 1px solid rgba(112, 70, 47, 0.18);
+
+  border-radius: 50%;
+}
+
+.coffee-orbit-one {
+  width: 470px;
+  height: 470px;
+
+  transform: rotate(18deg) scaleY(0.48);
+}
+
+.coffee-orbit-two {
+  width: 560px;
+  height: 560px;
+
+  transform: rotate(-35deg) scaleY(0.38);
+}
+
+.coffee-cup-scene {
+  position: relative;
+
+  width: 400px;
+  height: 450px;
+
+  z-index: 2;
+
+  animation: coffeeFloat 6s ease-in-out infinite;
+}
+
+@keyframes coffeeFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-15px) rotate(1deg);
+  }
+}
+
+.coffee-cup-shadow {
+  position: absolute;
+
+  width: 310px;
+  height: 55px;
+
+  left: 45px;
+  bottom: 45px;
+
+  background: rgba(44, 23, 14, 0.25);
+
+  filter: blur(25px);
+
+  border-radius: 50%;
+}
+
+.coffee-cup {
+  position: absolute;
+
+  width: 310px;
+  height: 280px;
+
+  left: 45px;
+  top: 100px;
+}
+
+.coffee-cup-body {
+  position: absolute;
+
+  width: 265px;
+  height: 210px;
+
+  left: 15px;
+  top: 25px;
+
+  border-radius:
+    15px 15px
+    85px 85px;
+
+  background:
+    linear-gradient(
+      105deg,
+      #fdfdfb 0%,
+      #f2efeb 45%,
+      #d9d4ce 100%
+    );
+
+  box-shadow:
+    inset -18px -8px 30px rgba(70, 48, 38, 0.12),
+    15px 20px 25px rgba(44, 23, 14, 0.12);
+}
+
+.coffee-cup-rim {
+  position: absolute;
+
+  width: 280px;
+  height: 72px;
+
+  left: -8px;
+  top: -30px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #dedbd5
+    );
+
+  box-shadow:
+    0 8px 10px rgba(44, 23, 14, 0.08);
+}
+
+.coffee-liquid {
+  position: absolute;
+
+  width: 238px;
+  height: 50px;
+
+  left: 21px;
+  top: 10px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      ellipse at 40% 35%,
+      #8c593b,
+      #3b1d10 75%
+    );
+
+  box-shadow:
+    inset 0 5px 8px rgba(255, 255, 255, 0.1);
+}
+
+.coffee-cup-handle {
+  position: absolute;
+
+  width: 105px;
+  height: 125px;
+
+  right: -30px;
+  top: 50px;
+
+  border: 25px solid #e8e5df;
+
+  border-left-color: transparent;
+
+  border-radius: 50%;
+}
+
+.coffee-cup-saucer {
+  position: absolute;
+
+  width: 330px;
+  height: 60px;
+
+  left: 0;
+  bottom: 25px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #dedbd5
+    );
+
+  box-shadow:
+    0 16px 25px rgba(44, 23, 14, 0.12);
+}
+
+.coffee-cup-highlight {
+  position: absolute;
+
+  width: 20px;
+  height: 100px;
+
+  left: 48px;
+  top: 45px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.55);
+
+  filter: blur(5px);
+}
+
+
+/* =========================================================
+   FLOATING BEANS
+   ========================================================= */
+
+.floating-bean {
+  position: absolute;
+
+  width: 28px;
+  height: 40px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #a66b45,
+      #482416 65%
+    );
+
+  box-shadow:
+    6px 10px 15px rgba(44, 23, 14, 0.2);
+
+  transform: rotate(35deg);
+}
+
+.bean-one {
+  top: 75px;
+  right: 45px;
+  animation: beanFloat 5s infinite ease-in-out;
+}
+
+.bean-two {
+  bottom: 115px;
+  left: 15px;
+
+  width: 18px;
+  height: 28px;
+
+  animation: beanFloat 4s infinite ease-in-out reverse;
+}
+
+.bean-three {
+  top: 175px;
+  left: 0;
+
+  width: 14px;
+  height: 22px;
+
+  animation: beanFloat 6s infinite ease-in-out;
+}
+
+@keyframes beanFloat {
+  50% {
+    transform:
+      translateY(-18px)
+      rotate(70deg);
+  }
+}
+
+.coffee-visual-label {
+  position: absolute;
+
+  right: 0;
+  bottom: 30px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  text-align: right;
+
+  color: var(--espresso);
+}
+
+.coffee-visual-label span {
+  font-size: 9px;
+  letter-spacing: 0.3em;
+}
+
+.coffee-visual-label strong {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  line-height: 0.95;
+}
+
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.coffee-intro {
+  padding: 130px 0;
+
+  background: var(--paper);
+}
+
+.coffee-intro-grid {
+  display: grid;
+
+  grid-template-columns: 0.7fr 1.3fr;
+
+  gap: 100px;
+}
+
+.coffee-section-number {
+  color: var(--brown);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.22em;
+}
+
+.coffee-intro h2 {
+  margin: 0;
+
+  color: var(--espresso);
+
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 500;
+
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.coffee-intro p {
+  max-width: 550px;
+
+  margin-top: 35px;
+
+  color: var(--muted);
+
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   VALUES
+   ========================================================= */
+
+.coffee-values {
+  padding: 120px 0;
+
+  background: var(--paper);
+}
+
+.coffee-section-heading {
+  display: flex;
+
+  align-items: end;
+  justify-content: space-between;
+
+  gap: 50px;
+
+  margin-bottom: 60px;
+}
+
+.coffee-section-heading > div span,
+.coffee-menu-heading > div span,
+.coffee-experience-copy > span,
+.coffee-final-content > span {
+  color: var(--brown);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.25em;
+}
+
+.coffee-section-heading h2,
+.coffee-menu-heading h2 {
+  margin: 18px 0 0;
+
+  color: var(--espresso);
+
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 500;
+
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.coffee-section-heading p {
+  width: 310px;
+
+  color: var(--muted);
+
+  line-height: 1.7;
+}
+
+.coffee-value-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 18px;
+}
+
+.coffee-value-card {
+  position: relative;
+
+  min-height: 330px;
+
+  padding: 32px;
+
+  border: 1px solid var(--line);
+
+  border-radius: 5px;
+
+  background: #faf7f2;
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.coffee-value-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow:
+    0 25px 50px rgba(44, 23, 14, 0.1);
+}
+
+.coffee-value-dark {
+  background: var(--espresso);
+  color: white;
+}
+
+.coffee-value-number {
+  position: absolute;
+
+  right: 28px;
+  top: 28px;
+
+  font-size: 10px;
+
+  opacity: 0.45;
+}
+
+.coffee-value-icon {
+  margin-top: 40px;
+
+  font-size: 48px;
+
+  color: var(--caramel);
+}
+
+.coffee-value-card h3 {
+  margin-top: 35px;
+
+  font-size: 22px;
+}
+
+.coffee-value-card p {
+  max-width: 280px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.coffee-value-dark p {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.coffee-card-arrow {
+  position: absolute;
+
+  bottom: 28px;
+  right: 28px;
+
+  font-size: 20px;
+}
+
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+.coffee-menu {
+  padding: 125px 0;
+
+  background: var(--cream);
+}
+
+.coffee-menu-heading {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: end;
+
+  margin-bottom: 60px;
+}
+
+.coffee-menu-link {
+  border-bottom: 1px solid var(--espresso);
+
+  padding-bottom: 5px;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.coffee-products {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+.coffee-product {
+  background: var(--paper);
+
+  border-radius: 5px;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.coffee-product:hover {
+  transform: translateY(-10px);
+
+  box-shadow:
+    0 25px 50px rgba(44, 23, 14, 0.13);
+}
+
+.coffee-product-visual {
+  position: relative;
+
+  height: 330px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at center,
+      #f8eee1,
+      #eadbc9
+    );
+}
+
+.coffee-product-index {
+  position: absolute;
+
+  top: 20px;
+  left: 22px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.coffee-product-category {
+  position: absolute;
+
+  right: 22px;
+  bottom: 20px;
+
+  color: var(--brown);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.mini-cup {
+  position: relative;
+
+  width: 155px;
+  height: 140px;
+}
+
+.mini-cup-body {
+  position: absolute;
+
+  left: 10px;
+  top: 25px;
+
+  width: 130px;
+  height: 105px;
+
+  border-radius:
+    8px 8px
+    45px 45px;
+
+  background:
+    linear-gradient(
+      100deg,
+      white,
+      #ddd9d2
+    );
+
+  box-shadow:
+    12px 15px 20px rgba(44, 23, 14, 0.15);
+}
+
+.mini-cup-top {
+  position: absolute;
+
+  width: 135px;
+  height: 38px;
+
+  left: -3px;
+  top: -16px;
+
+  border-radius: 50%;
+
+  background: white;
+}
+
+.mini-cup-top div {
+  width: 112px;
+  height: 25px;
+
+  margin: 6px auto;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 40% 30%,
+      #855138,
+      #381b0f
+    );
+}
+
+.mini-cup-handle {
+  position: absolute;
+
+  right: -3px;
+  top: 45px;
+
+  width: 45px;
+  height: 55px;
+
+  border: 12px solid #dedbd5;
+
+  border-left-color: transparent;
+
+  border-radius: 50%;
+}
+
+.coffee-product-info {
+  padding: 28px;
+}
+
+.coffee-product-info h3 {
+  margin: 0;
+
+  color: var(--espresso);
+
+  font-family: Georgia, serif;
+
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.coffee-product-info p {
+  min-height: 48px;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.coffee-product-bottom {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 25px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid var(--line);
+}
+
+.coffee-product-bottom strong {
+  font-size: 17px;
+}
+
+.coffee-available {
+  color: var(--brown);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+
+/* =========================================================
+   EXPERIENCE
+   ========================================================= */
+
+.coffee-experience {
+  padding: 120px 0;
+
+  background: var(--paper);
+}
+
+.coffee-experience-card {
+  min-height: 550px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  overflow: hidden;
+
+  border-radius: 6px;
+
+  background: var(--espresso);
+
+  color: white;
+}
+
+.coffee-experience-copy {
+  display: flex;
+
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 70px;
+}
+
+.coffee-experience-copy > span {
+  color: #d3a37c;
+}
+
+.coffee-experience-copy h2 {
+  margin: 25px 0;
+
+  font-size: clamp(3rem, 5vw, 5rem);
+
+  font-weight: 500;
+
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.coffee-experience-copy p {
+  max-width: 470px;
+
+  color: rgba(255, 255, 255, 0.65);
+
+  line-height: 1.75;
+}
+
+.coffee-light-action {
+  width: fit-content;
+
+  margin-top: 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  padding: 14px 20px;
+
+  border: none;
+  border-radius: 4px;
+
+  background: white;
+
+  color: var(--espresso);
+
+  font-weight: 700;
+}
+
+.coffee-experience-art {
+  position: relative;
+
+  min-height: 550px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle,
+      #8b5b3e,
+      #432519 65%
+    );
+}
+
+.experience-circle {
+  width: 390px;
+  height: 390px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle,
+      #d9b18f,
+      #825235 70%
+    );
+
+  box-shadow:
+    0 35px 60px rgba(0, 0, 0, 0.25);
+}
+
+.experience-cup {
+  position: relative;
+
+  width: 190px;
+  height: 150px;
+
+  border-radius:
+    10px 10px
+    60px 60px;
+
+  background: #f6f3ee;
+
+  box-shadow:
+    20px 25px 30px rgba(0, 0, 0, 0.2);
+}
+
+.experience-coffee {
+  position: absolute;
+
+  width: 175px;
+  height: 45px;
+
+  top: -20px;
+  left: 7px;
+
+  border-radius: 50%;
+
+  background: #3b1d10;
+}
+
+.experience-text {
+  position: absolute;
+
+  right: 35px;
+  bottom: 35px;
+
+  font-family: Georgia, serif;
+
+  font-size: 16px;
+
+  line-height: 1.1;
+
+  text-align: right;
+
+  opacity: 0.75;
+}
+
+
+/* =========================================================
+   FINAL CTA
+   ========================================================= */
+
+.coffee-final {
+  padding: 110px 0;
+
+  background: var(--cream);
+}
+
+.coffee-final-content {
+  text-align: center;
+
+  padding: 95px 30px;
+
+  border-radius: 6px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #351b10,
+      #633b25
+    );
+
+  color: white;
+
+  box-shadow:
+    0 30px 60px rgba(44, 23, 14, 0.16);
+}
+
+.coffee-final-content > span {
+  color: #d7ae89;
+}
+
+.coffee-final-content h2 {
+  margin: 25px 0 35px;
+
+  font-size: clamp(3.5rem, 6vw, 6rem);
+
+  font-weight: 500;
+
+  line-height: 0.9;
+
+  letter-spacing: -0.06em;
+}
+
+.coffee-final-content em {
+  color: #e1b894;
+}
+
+.coffee-final-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 25px;
+
+  padding: 16px 23px;
+
+  border-radius: 4px;
+
+  background: white;
+
+  color: var(--espresso);
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .coffee-container {
+    width: min(100% - 32px, 1180px);
+  }
+
+  .coffee-hero-inner {
+    grid-template-columns: 1fr;
+
+    padding-top: 80px;
+  }
+
+  .coffee-hero-title {
+    font-size: clamp(4rem, 13vw, 6rem);
+  }
+
+  .coffee-hero-visual {
+    min-height: 500px;
+  }
+
+  .coffee-intro-grid {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+  }
+
+  .coffee-section-heading {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .coffee-value-grid,
+  .coffee-products {
+    grid-template-columns: 1fr;
+  }
+
+  .coffee-experience-card {
+    grid-template-columns: 1fr;
+  }
+
+  .coffee-experience-art {
+    min-height: 450px;
+  }
+}
+
+
+@media (max-width: 640px) {
+
+  .coffee-hero {
+    min-height: auto;
+  }
+
+  .coffee-hero-inner {
+    min-height: auto;
+
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .coffee-hero-title {
+    font-size: 4rem;
+  }
+
+  .coffee-hero-description {
+    font-size: 14px;
+  }
+
+  .coffee-hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .coffee-hero-stats {
+    gap: 20px;
+    justify-content: space-between;
+  }
+
+  .coffee-hero-stats span {
+    font-size: 8px;
+  }
+
+  .coffee-hero-visual {
+    min-height: 430px;
+  }
+
+  .coffee-cup-scene {
+    transform: scale(0.78);
+  }
+
+  .coffee-cup-scene:hover {
+    transform: scale(0.8);
+  }
+
+  .coffee-orbit-one {
+    width: 330px;
+    height: 330px;
+  }
+
+  .coffee-orbit-two {
+    width: 390px;
+    height: 390px;
+  }
+
+  .coffee-intro,
+  .coffee-values,
+  .coffee-menu,
+  .coffee-experience {
+    padding: 80px 0;
+  }
+
+  .coffee-intro h2,
+  .coffee-section-heading h2,
+  .coffee-menu-heading h2 {
+    font-size: 3rem;
+  }
+
+  .coffee-experience-copy {
+    padding: 45px 30px;
+  }
+
+  .coffee-experience-copy h2 {
+    font-size: 3rem;
+  }
+
+  .coffee-final {
+    padding: 70px 0;
+  }
+
+  .coffee-final-content {
+    padding: 70px 20px;
+  }
+
+  .coffee-final-content h2 {
+    font-size: 3.5rem;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* ================================
+   COFFEEHUB NAVBAR
+================================ */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: rgba(250, 246, 239, 0.94);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(58, 32, 20, 0.08);
+}
+
+.navbar-container {
+  width: min(1200px, calc(100% - 64px));
+  height: 84px;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+/* Logo */
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #32180f;
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #35190f;
+  color: #f4dfc4;
+  font-size: 19px;
+
+  box-shadow: 0 6px 18px rgba(53, 25, 15, 0.18);
+}
+
+.logo-content {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-name {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.logo-tagline {
+  margin-top: 5px;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #8a6b59;
+}
+
+/* Navigation */
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  margin-left: auto;
+}
+
+.nav-link {
+  position: relative;
+
+  color: #51372a;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.nav-link:hover {
+  color: #241008;
+  transform: translateY(-1px);
+}
+
+.nav-link::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 1px;
+
+  background: #35190f;
+
+  transition: width 0.25s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: #35190f;
+  font-weight: 600;
+}
+
+/* Admin Button */
+
+.admin-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-width: 132px;
+  height: 44px;
+  padding: 0 18px;
+
+  border-radius: 7px;
+
+  background: #35190f;
+  color: #fffaf4;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  box-shadow: 0 8px 20px rgba(53, 25, 15, 0.16);
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.admin-button:hover {
+  background: #4a2618;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(53, 25, 15, 0.22);
+}
+
+.admin-arrow {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.admin-button:hover .admin-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .navbar-container {
+    width: min(100% - 36px, 700px);
+    gap: 20px;
+  }
+
+  .navbar-links {
+    gap: 20px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+  }
+
+  .admin-button {
+    min-width: auto;
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 700px) {
+  .navbar-container {
+    height: 72px;
+  }
+
+  .navbar-links {
+    display: none;
+  }
+
+  .logo-name {
+    font-size: 19px;
+  }
+
+  .admin-button {
+    height: 40px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .navbar-container {
+    width: calc(100% - 28px);
+  }
+
+  .logo-tagline {
+    display: none;
+  }
+
+  .logo-mark {
+    width: 38px;
+    height: 38px;
+    font-size: 17px;
+  }
+
+  .admin-button {
+    padding: 0 11px;
+  }
+}
