@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,10 @@ from app.core.dependencies import get_current_admin
 
 
 router = APIRouter(prefix="/admins", tags=["Admins"])
+
+# CoffeeHub has exactly one administrator. The email is configured outside the
+# source code so it can never be changed through a public/admin API request.
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "yashuchowdary565@gmail.com").strip().lower()
 
 
 @router.get("/", response_model=list[AdminResponse])
@@ -39,21 +45,23 @@ def update_admin(
     current_admin: Admin = Depends(get_current_admin),
 ):
     if admin_id != current_admin.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only update the administrator account")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only update the administrator account",
+        )
+
+    if admin_data.email.strip().lower() != ADMIN_EMAIL:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The CoffeeHub administrator email cannot be changed",
+        )
 
     admin = db.query(Admin).filter(Admin.id == admin_id).first()
     if admin is None:
         raise HTTPException(status_code=404, detail="Admin not found")
 
-    existing_admin = db.query(Admin).filter(
-        Admin.email == admin_data.email,
-        Admin.id != admin_id,
-    ).first()
-    if existing_admin:
-        raise HTTPException(status_code=400, detail="Another admin with this email already exists")
-
     admin.name = admin_data.name
-    admin.email = admin_data.email
+    admin.email = ADMIN_EMAIL
     admin.password = hash_password(admin_data.password)
     db.commit()
     db.refresh(admin)
@@ -65,15 +73,17 @@ def login_admin(
     login_data: AdminLogin,
     db: Session = Depends(get_db),
 ):
-    admin = db.query(Admin).order_by(Admin.id.asc()).first()
-    if admin is None or admin.email != login_data.email:
+    # There is only one administrator. Never authenticate an arbitrary admin
+    # record just because it happens to be the first row in the table.
+    if login_data.email.strip().lower() != ADMIN_EMAIL:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    if not verify_password(login_data.password, admin.password):
+    admin = db.query(Admin).filter(Admin.email == ADMIN_EMAIL).first()
+    if admin is None or not verify_password(login_data.password, admin.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     access_token = create_access_token(
-        data={"sub": str(admin.id), "email": admin.email, "role": "admin"}
+        data={"sub": str(admin.id), "email": ADMIN_EMAIL, "role": "admin"}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
