@@ -26,20 +26,112 @@ export interface Coffee {
   is_available: boolean;
 }
 
+interface CartItem extends Coffee {
+  quantity: number;
+}
+
+function CartDrawer({
+  items,
+  onClose,
+  onIncrease,
+  onDecrease,
+  onRemove,
+}: {
+  items: CartItem[];
+  onClose: () => void;
+  onIncrease: (id: number) => void;
+  onDecrease: (id: number) => void;
+  onRemove: (id: number) => void;
+}) {
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <>
+      <button
+        aria-label="Close cart"
+        onClick={onClose}
+        className="fixed inset-0 z-[60] bg-black/35 backdrop-blur-[2px]"
+      />
+      <aside className="fixed right-0 top-0 z-[70] h-full w-full max-w-md bg-[#fbf7f2] shadow-2xl flex flex-col animate-[slideIn_300ms_ease-out]">
+        <div className="flex items-center justify-between p-6 border-b border-black/10">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-[var(--coffee-brown)]">Your order</p>
+            <h2 className="text-2xl font-bold coffee-heading mt-1">Coffee Cart</h2>
+          </div>
+          <button onClick={onClose} className="w-10 h-10 rounded-full border border-black/10 hover:bg-black/5 text-xl">×</button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6">
+          {items.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              <div className="text-7xl mb-5">☕</div>
+              <h3 className="text-xl font-bold coffee-heading">Your cart is empty</h3>
+              <p className="coffee-muted mt-2 max-w-xs">Pick a coffee from the menu and it will appear here.</p>
+              <button onClick={onClose} className="coffee-button mt-6">Browse menu</button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div key={item.id} className="rounded-2xl bg-white border border-black/5 p-4 shadow-sm">
+                  <div className="flex gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-[#eadccf] flex items-center justify-center text-3xl shrink-0">☕</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold coffee-heading truncate">{item.name}</h3>
+                          <p className="text-xs coffee-muted mt-1">₹{item.price} each</p>
+                        </div>
+                        <button onClick={() => onRemove(item.id)} className="text-xs text-red-700 hover:underline">Remove</button>
+                      </div>
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="inline-flex items-center rounded-full border border-black/10 bg-[#fbf7f2] overflow-hidden">
+                          <button onClick={() => onDecrease(item.id)} className="w-9 h-8 hover:bg-black/5 font-bold">−</button>
+                          <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
+                          <button onClick={() => onIncrease(item.id)} className="w-9 h-8 hover:bg-black/5 font-bold">+</button>
+                        </div>
+                        <span className="font-bold text-[var(--coffee-brown)]">₹{item.price * item.quantity}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {items.length > 0 && (
+          <div className="border-t border-black/10 p-6 bg-white">
+            <div className="flex justify-between text-sm coffee-muted"><span>Items</span><span>{totalItems}</span></div>
+            <div className="flex justify-between mt-2 text-sm coffee-muted"><span>Subtotal</span><span>₹{subtotal}</span></div>
+            <div className="flex justify-between mt-4 pt-4 border-t border-black/10 text-xl font-bold coffee-heading"><span>Total</span><span>₹{subtotal}</span></div>
+            <button className="coffee-button w-full mt-5 justify-center">Proceed to checkout <span>→</span></button>
+            <p className="text-[10px] text-center coffee-muted mt-3">Secure checkout · Freshly prepared</p>
+          </div>
+        )}
+      </aside>
+    </>
+  );
+}
+
 function HomePage() {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("coffeehub_cart") || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const [cartOpen, setCartOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/coffees/")
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch coffees");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch coffees");
         return response.json();
       })
       .then((data: Coffee[]) => {
@@ -52,154 +144,80 @@ function HomePage() {
       });
   }, []);
 
-  if (loading) {
-    return (
-      <div className="coffee-page min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-5 animate-pulse">
-            ☕
-          </div>
+  useEffect(() => {
+    localStorage.setItem("coffeehub_cart", JSON.stringify(cartItems));
+  }, [cartItems]);
 
-          <p
-            className="font-medium"
-            style={{
-              color: "var(--coffee-brown)",
-            }}
-          >
-            Brewing your coffee menu...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const handleAddToCart = (event: Event) => {
+      const coffee = (event as CustomEvent<Coffee>).detail;
+      if (!coffee) return;
+      setCartItems((current) => {
+        const existing = current.find((item) => item.id === coffee.id);
+        if (existing) {
+          return current.map((item) => item.id === coffee.id ? { ...item, quantity: item.quantity + 1 } : item);
+        }
+        return [...current, { ...coffee, quantity: 1 }];
+      });
+      setCartOpen(true);
+    };
 
-  if (error) {
-    return (
-      <div className="coffee-page min-h-screen flex items-center justify-center px-6">
-        <div className="coffee-card max-w-md w-full p-8 text-center">
-          <div className="text-5xl mb-4">
-            ☕
-          </div>
+    window.addEventListener("coffeehub:add-to-cart", handleAddToCart);
+    return () => window.removeEventListener("coffeehub:add-to-cart", handleAddToCart);
+  }, []);
 
-          <h2 className="text-2xl font-bold coffee-heading">
-            Something went wrong
-          </h2>
+  const increase = (id: number) => setCartItems((items) => items.map((item) => item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+  const decrease = (id: number) => setCartItems((items) => items.flatMap((item) => item.id !== id ? [item] : item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : []));
+  const remove = (id: number) => setCartItems((items) => items.filter((item) => item.id !== id));
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-          <p className="coffee-muted mt-3">
-            {error}
-          </p>
+  if (loading) return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-5 animate-pulse">☕</div><p className="font-medium text-[var(--coffee-brown)]">Brewing your coffee menu...</p></div></div>;
 
-          <button
-            onClick={() => window.location.reload()}
-            className="coffee-button mt-6"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (error) return <div className="coffee-page min-h-screen flex items-center justify-center px-6"><div className="coffee-card max-w-md w-full p-8 text-center"><div className="text-5xl mb-4">☕</div><h2 className="text-2xl font-bold coffee-heading">Something went wrong</h2><p className="coffee-muted mt-3">{error}</p><button onClick={() => window.location.reload()} className="coffee-button mt-6">Try Again</button></div></div>;
 
   return (
     <>
       <Navbar />
-
-      <Home
-        coffees={coffees}
-        onLogin={() => navigate("/login")}
-      />
-
+      <div className="fixed right-5 bottom-5 z-50">
+        <button onClick={() => setCartOpen(true)} className="w-16 h-16 rounded-full bg-[var(--coffee-dark)] text-white shadow-2xl hover:scale-105 transition-transform flex items-center justify-center text-2xl relative" aria-label="Open shopping cart">
+          🛒
+          {cartCount > 0 && <span className="absolute -top-1 -right-1 min-w-6 h-6 px-1 rounded-full bg-[var(--coffee-brown)] text-white text-xs font-bold flex items-center justify-center">{cartCount}</span>}
+        </button>
+      </div>
+      <Home coffees={coffees} onLogin={() => navigate("/login")} />
       <Footer />
+      {cartOpen && <CartDrawer items={cartItems} onClose={() => setCartOpen(false)} onIncrease={increase} onDecrease={decrease} onRemove={remove} />}
     </>
   );
 }
 
-/* --------------------------------
-   Protected Dashboard
---------------------------------- */
-
 function ProtectedDashboard() {
   const token = localStorage.getItem("access_token");
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!token) return <Navigate to="/login" replace />;
   return <Dashboard />;
 }
 
-/* --------------------------------
-   Protected Customers
---------------------------------- */
-
 function ProtectedCustomers() {
   const token = localStorage.getItem("access_token");
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!token) return <Navigate to="/login" replace />;
   return <Customers />;
 }
 
-/* --------------------------------
-   Protected Coffee Management
---------------------------------- */
-
 function ProtectedCoffeeManagement() {
   const token = localStorage.getItem("access_token");
-
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (!token) return <Navigate to="/login" replace />;
   return <CoffeeManagement />;
 }
-
-/* --------------------------------
-   Main App
---------------------------------- */
 
 function App() {
   return (
     <Routes>
-
-      {/* Public Home */}
-      <Route
-        path="/"
-        element={<HomePage />}
-      />
-
-      {/* Admin Login */}
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      {/* Protected Admin Dashboard */}
-      <Route
-        path="/dashboard"
-        element={<ProtectedDashboard />}
-      />
-
-      {/* Protected Customers */}
-      <Route
-        path="/customers"
-        element={<ProtectedCustomers />}
-      />
-
-      {/* Protected Coffee Management */}
-      <Route
-        path="/coffees"
-        element={<ProtectedCoffeeManagement />}
-      />
-
-      {/* Unknown routes */}
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
-
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/dashboard" element={<ProtectedDashboard />} />
+      <Route path="/customers" element={<ProtectedCustomers />} />
+      <Route path="/coffees" element={<ProtectedCoffeeManagement />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
