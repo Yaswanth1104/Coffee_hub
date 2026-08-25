@@ -1,11 +1,16 @@
 import logging
 import os
 
-import httpx
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from app.models.order import Order
 
 logger = logging.getLogger(__name__)
+
+
+# Twilio WhatsApp Sandbox sender. The recipient must have joined the sandbox.
+DEFAULT_TWILIO_WHATSAPP_FROM = "whatsapp:+14155238886"
 
 
 def _setting(name: str, default: str = "") -> str:
@@ -35,58 +40,59 @@ def _format_order_message(order: Order) -> str:
 
 
 def send_new_order_notification(order: Order) -> bool:
-    """Send an admin WhatsApp notification when WhatsApp Cloud API is configured.
+    """Send a best-effort WhatsApp notification for a newly created order.
 
-    The function intentionally fails soft: WhatsApp delivery problems must never
-    make an already-created customer order fail.
+    This uses the Twilio WhatsApp Sandbox. WhatsApp delivery problems are
+    intentionally swallowed so a successful customer order is never rolled
+    back because of a notification failure.
     """
-    enabled = _setting("WHATSAPP_ENABLED", "false").lower() == "true"
-    access_token = _setting("WHATSAPP_ACCESS_TOKEN")
-    phone_number_id = _setting("WHATSAPP_PHONE_NUMBER_ID")
+    account_sid = _setting("TWILIO_ACCOUNT_SID")
+    auth_token = _setting("TWILIO_AUTH_TOKEN")
     admin_number = _setting("WHATSAPP_ADMIN_NUMBER")
-    api_version = _setting("WHATSAPP_API_VERSION", "v21.0")
+    whatsapp_from = _setting(
+        "TWILIO_WHATSAPP_FROM",
+        DEFAULT_TWILIO_WHATSAPP_FROM,
+    )
 
-    if not enabled:
-        return False
-
-    missing = [
-        name
-        for name, value in (
-            ("WHATSAPP_ACCESS_TOKEN", access_token),
-            ("WHATSAPP_PHONE_NUMBER_ID", phone_number_id),
-            ("WHATSAPP_ADMIN_NUMBER", admin_number),
+    if not account_sid or not auth_token or not admin_number:
+        logger.warning(
+            "WhatsApp notification skipped; missing Twilio settings. "
+            "Required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, WHATSAPP_ADMIN_NUMBER"
         )
-        if not value
-    ]
-    if missing:
-        logger.warning("WhatsApp notification skipped; missing settings: %s", ", ".join(missing))
         return False
 
-    url = f"https://graph.facebook.com/{api_version}/{phone_number_id}/messages"
-    payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        "to": admin_number,
-        "type": "text",
-        "text": {
-            "preview_url": False,
-            "body": _format_order_message(order),
-        },
-    }
+    recipient = admin_number
+    if not recipient.startswith("whatsapp:"):
+        recipient = f"whatsapp:{recipient}"
+
+    sender = whatsapp_from
+    if not sender.startswith("whatsapp:"):
+        sender = f"whatsapp:{sender}"
 
     try:
-        response = httpx.post(
-            url,
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json",
-            },
-            json=payload,
-            timeout=15.0,
+        client = Client(account_sid, auth_token)
+        message = client.messages.create(
+            body=_format_order_message(order),
+            from_=sender,
+            to=recipient,
         )
-        response.raise_for_status()
-        logger.info("WhatsApp order notification sent for order #%s", order.id)
+        logger.info(
+            "WhatsApp order notification sent for order #%s (SID: %s)",
+            order.id,
+            message.sid,
+        )
         return True
-    except httpx.HTTPError as exc:
-        logger.error("WhatsApp order notification failed for order #%s: %s", order.id, exc)
+    except TwilioRestException as exc:
+        logger.error(
+            "Twilio WhatsApp notification failed for order #%s: %s",
+            order.id,
+            exc,
+        )
+        return False
+    except Exception as exc:
+        logger.exception(
+            "Unexpected WhatsApp notification error for order #%s: %s",
+            order.id,
+            exc,
+        )
         return False
