@@ -34,6 +34,9 @@ def update_my_profile(
     current_customer.name = data.name
     current_customer.email = data.email
     current_customer.phone = data.phone
+    current_customer.address = data.address
+    current_customer.city = data.city
+    current_customer.pincode = data.pincode
     db.commit()
     db.refresh(current_customer)
     return current_customer
