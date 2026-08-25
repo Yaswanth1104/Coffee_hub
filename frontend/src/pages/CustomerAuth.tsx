@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../services/api";
 
 type Mode = "login" | "register";
-interface CustomerAuthResponse { access_token: string; token_type: string; customer_id: number; name: string; email: string; }
+interface CustomerAuthResponse { access_token: string; token_type: string; customer_id?: number; name?: string; email: string; role: "admin" | "customer"; }
 
 function CustomerAuth() {
   const navigate = useNavigate();
@@ -21,7 +21,23 @@ function CustomerAuth() {
       const endpoint = mode === "register" ? "register" : "login";
       const response = await fetch(`${API_BASE_URL}/customer-auth/${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mode === "register" ? { name: name.trim(), email: normalizedEmail, phone: phone || null, password } : { email: normalizedEmail, password }) });
       const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.detail || "Authentication failed");
-      const data: CustomerAuthResponse = body; localStorage.removeItem("access_token"); localStorage.removeItem("token_type"); localStorage.setItem("customer_access_token", data.access_token); localStorage.setItem("customer", JSON.stringify({ id: data.customer_id, name: data.name, email: data.email })); window.dispatchEvent(new Event("coffeehub:customer-auth")); navigate("/");
+      const data: CustomerAuthResponse = body;
+
+      if (mode === "login" && data.role === "admin") {
+        localStorage.removeItem("customer_access_token");
+        localStorage.removeItem("customer");
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("token_type", data.token_type);
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("token_type");
+      localStorage.setItem("customer_access_token", data.access_token);
+      localStorage.setItem("customer", JSON.stringify({ id: data.customer_id, name: data.name, email: data.email }));
+      window.dispatchEvent(new Event("coffeehub:customer-auth"));
+      navigate("/", { replace: true });
     } catch (err) { setError(err instanceof Error ? err.message : "Authentication failed"); } finally { setLoading(false); }
   };
 
@@ -48,7 +64,7 @@ function CustomerAuth() {
             {error && <div className="rounded-xl bg-red-50 border border-red-100 text-red-700 px-4 py-3 text-sm">{error}</div>}
             <button disabled={loading} className="coffee-button w-full justify-center disabled:opacity-50" type="submit">{loading ? "Please wait..." : mode === "login" ? "Continue to CoffeeHub →" : "Create my account →"}</button>
           </form>
-          <p className="text-xs text-[#9b877a] text-center mt-7">Fresh coffee, simple ordering, one account.</p>
+          <p className="text-xs text-[#9b877a] text-center mt-7">One login for customers and administrators.</p>
         </section>
       </div>
     </main>
