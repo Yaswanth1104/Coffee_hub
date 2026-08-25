@@ -8,7 +8,7 @@ from app.database.connection import Base, engine, ensure_legacy_columns
 from app.models.admin import Admin
 from app.models.customer_account import CustomerAccount
 from app.models.order import Order, OrderItem
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 
 from app.routes.customer import router as customer_router
 from app.routes.customer_auth import router as customer_auth_router
@@ -30,7 +30,7 @@ ADMIN_NAME = os.getenv("ADMIN_NAME", "CoffeeHub Administrator")
 
 
 def ensure_single_admin() -> None:
-    """Create/normalize exactly one CoffeeHub administrator."""
+    """Create and normalize exactly one CoffeeHub administrator."""
     with Session(engine) as db:
         admins = db.query(Admin).order_by(Admin.id.asc()).all()
 
@@ -50,12 +50,28 @@ def ensure_single_admin() -> None:
         # Keep the first account as the single administrator.
         admin = admins[0]
         changed = False
+
         if admin.email != ADMIN_EMAIL:
             admin.email = ADMIN_EMAIL
             changed = True
+
         if not admin.name:
             admin.name = ADMIN_NAME
             changed = True
+
+        # The password in backend/.env is the local administrator credential.
+        # If an older database contains a different hash, synchronize it once
+        # instead of forcing the user to manually edit the database.
+        if ADMIN_PASSWORD:
+            try:
+                password_matches = verify_password(ADMIN_PASSWORD, admin.password)
+            except Exception:
+                password_matches = False
+
+            if not password_matches:
+                admin.password = hash_password(ADMIN_PASSWORD)
+                changed = True
+
         if changed:
             db.commit()
 
