@@ -24,30 +24,46 @@ Base.metadata.create_all(bind=engine)
 ensure_legacy_columns()
 
 
-def ensure_single_admin() -> None:
-    """Create the first and only admin from environment credentials if needed."""
-    admin_email = os.getenv("ADMIN_EMAIL")
-    admin_password = os.getenv("ADMIN_PASSWORD")
-    admin_name = os.getenv("ADMIN_NAME", "CoffeeHub Administrator")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "yashuchowdary565@gmail.com").strip().lower()
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+ADMIN_NAME = os.getenv("ADMIN_NAME", "CoffeeHub Administrator")
 
+
+def ensure_single_admin() -> None:
+    """Create/normalize exactly one CoffeeHub administrator."""
     with Session(engine) as db:
-        admin = db.query(Admin).order_by(Admin.id.asc()).first()
-        if admin is not None:
+        admins = db.query(Admin).order_by(Admin.id.asc()).all()
+
+        if not admins:
+            if not ADMIN_PASSWORD:
+                raise RuntimeError("No administrator exists. Set ADMIN_PASSWORD in backend/.env.")
+            db.add(
+                Admin(
+                    name=ADMIN_NAME,
+                    email=ADMIN_EMAIL,
+                    password=hash_password(ADMIN_PASSWORD),
+                )
+            )
+            db.commit()
             return
 
-        if not admin_email or not admin_password:
-            raise RuntimeError(
-                "No administrator exists. Set ADMIN_EMAIL and ADMIN_PASSWORD in backend/.env."
-            )
+        # Keep the first account as the single administrator.
+        admin = admins[0]
+        changed = False
+        if admin.email != ADMIN_EMAIL:
+            admin.email = ADMIN_EMAIL
+            changed = True
+        if not admin.name:
+            admin.name = ADMIN_NAME
+            changed = True
+        if changed:
+            db.commit()
 
-        db.add(
-            Admin(
-                name=admin_name,
-                email=admin_email,
-                password=hash_password(admin_password),
-            )
-        )
-        db.commit()
+        # Remove any legacy extra administrator rows.
+        for extra_admin in admins[1:]:
+            db.delete(extra_admin)
+        if len(admins) > 1:
+            db.commit()
 
 
 ensure_single_admin()
