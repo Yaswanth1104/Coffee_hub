@@ -7,6 +7,9 @@ class CustomerCreate(BaseModel):
     name: str
     email: EmailStr
     phone: str | None = None
+    address: str | None = None
+    city: str | None = None
+    pincode: str | None = None
 
 
 class CustomerResponse(BaseModel):
@@ -14,6 +17,9 @@ class CustomerResponse(BaseModel):
     name: str
     email: EmailStr
     phone: str | None
+    address: str | None
+    city: str | None
+    pincode: str | None
     created_at: datetime
 
     model_config = {
