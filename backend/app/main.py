@@ -10,6 +10,7 @@ from app.routes.customer_auth import router as customer_auth_router
 from app.routes.admin import router as admin_router
 from app.routes.coffee import router as coffee_router
 from app.routes.order import router as order_router
+from app.routes.admin_orders import router as admin_orders_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -39,6 +40,7 @@ app.include_router(customer_auth_router)
 app.include_router(admin_router)
 app.include_router(coffee_router)
 app.include_router(order_router)
+app.include_router(admin_orders_router)
 
 
 @app.get("/")
