@@ -7,6 +7,7 @@ from app.models.order import Order, OrderItem
 
 from app.routes.customer import router as customer_router
 from app.routes.customer_auth import router as customer_auth_router
+from app.routes.customer_profile import router as customer_profile_router
 from app.routes.admin import router as admin_router
 from app.routes.coffee import router as coffee_router
 from app.routes.order import router as order_router
@@ -37,6 +38,7 @@ app.add_middleware(
 
 app.include_router(customer_router)
 app.include_router(customer_auth_router)
+app.include_router(customer_profile_router)
 app.include_router(admin_router)
 app.include_router(coffee_router)
 app.include_router(order_router)
