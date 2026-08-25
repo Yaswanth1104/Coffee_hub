@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import "./App.css";
 import Home from "./pages/Home";
@@ -53,7 +53,7 @@ function isAdminToken(): boolean {
   }
 }
 
-function ProtectedAdminPage({ children }: { children: JSX.Element }) {
+function ProtectedAdminPage({ children }: { children: ReactElement }) {
   return isAdminToken() ? children : <Navigate to="/login" replace />;
 }
 
