@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import CustomerAuth from "./pages/CustomerAuth";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
+import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/admin/Customers";
 import CoffeeManagement from "./pages/admin/CoffeeManagement";
@@ -34,5 +35,6 @@ function ProtectedDashboard() { return localStorage.getItem("access_token") ? <D
 function ProtectedCustomers() { return localStorage.getItem("access_token") ? <Customers /> : <Navigate to="/login" replace />; }
 function ProtectedCoffeeManagement() { return localStorage.getItem("access_token") ? <CoffeeManagement /> : <Navigate to="/login" replace />; }
 function ProtectedAdminOrders() { return localStorage.getItem("access_token") ? <Orders /> : <Navigate to="/login" replace />; }
-function App() { return <Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<Login />} /><Route path="/customer-auth" element={<CustomerAuth />} /><Route path="/checkout" element={<Checkout />} /><Route path="/my-orders" element={<MyOrders />} /><Route path="/dashboard" element={<ProtectedDashboard />} /><Route path="/customers" element={<ProtectedCustomers />} /><Route path="/coffees" element={<ProtectedCoffeeManagement />} /><Route path="/admin/orders" element={<ProtectedAdminOrders />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
+function ProtectedProfile() { return localStorage.getItem("customer_access_token") ? <Profile /> : <Navigate to="/customer-auth" replace />; }
+function App() { return <Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<Login />} /><Route path="/customer-auth" element={<CustomerAuth />} /><Route path="/checkout" element={<Checkout />} /><Route path="/my-orders" element={<MyOrders />} /><Route path="/profile" element={<ProtectedProfile />} /><Route path="/dashboard" element={<ProtectedDashboard />} /><Route path="/customers" element={<ProtectedCustomers />} /><Route path="/coffees" element={<ProtectedCoffeeManagement />} /><Route path="/admin/orders" element={<ProtectedAdminOrders />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
 export default App;
