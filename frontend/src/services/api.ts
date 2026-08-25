@@ -1,4 +1,5 @@
 import type { Coffee, CoffeeCreate } from "../types/coffee";
+export type { Coffee, CoffeeCreate } from "../types/coffee";
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
