@@ -14,8 +14,8 @@ import CoffeeManagement from "./pages/admin/CoffeeManagement";
 import Orders from "./pages/admin/Orders";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { getCoffees, type Coffee } from "./services/api";
 
-export interface Coffee { id: number; name: string; description: string; price: number; category: string; is_available: boolean; }
 interface CartItem extends Coffee { quantity: number; }
 
 function CartDrawer({ items, onClose, onIncrease, onDecrease, onRemove }: { items: CartItem[]; onClose: () => void; onIncrease: (id: number) => void; onDecrease: (id: number) => void; onRemove: (id: number) => void; }) {
@@ -25,44 +25,19 @@ function CartDrawer({ items, onClose, onIncrease, onDecrease, onRemove }: { item
 
 function HomePage() {
   const [coffees, setCoffees] = useState<Coffee[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [cartItems, setCartItems] = useState<CartItem[]>(() => { try { return JSON.parse(localStorage.getItem("coffeehub_cart") || "[]"); } catch { return []; } }); const [cartOpen, setCartOpen] = useState(false); const navigate = useNavigate();
-  useEffect(() => { fetch("http://127.0.0.1:8000/coffees/").then(r => { if (!r.ok) throw new Error(); return r.json(); }).then((data: Coffee[]) => { setCoffees(data); setLoading(false); }).catch(() => { setError("Unable to load coffee menu"); setLoading(false); }); }, []);
+  const loadCoffees = () => { setLoading(true); setError(""); getCoffees().then(setCoffees).catch(() => setError("Unable to load coffee menu")).finally(() => setLoading(false)); };
+  useEffect(() => { loadCoffees(); }, []);
   useEffect(() => { localStorage.setItem("coffeehub_cart", JSON.stringify(cartItems)); }, [cartItems]);
   useEffect(() => { const handler = (event: Event) => { const coffee = (event as CustomEvent<Coffee>).detail; if (!coffee) return; setCartItems(current => { const existing = current.find(i => i.id === coffee.id); return existing ? current.map(i => i.id === coffee.id ? { ...i, quantity: i.quantity + 1 } : i) : [...current, { ...coffee, quantity: 1 }]; }); setCartOpen(true); }; window.addEventListener("coffeehub:add-to-cart", handler); return () => window.removeEventListener("coffeehub:add-to-cart", handler); }, []);
   const increase = (id: number) => setCartItems(items => items.map(i => i.id === id ? { ...i, quantity: i.quantity + 1 } : i)); const decrease = (id: number) => setCartItems(items => items.flatMap(i => i.id !== id ? [i] : i.quantity > 1 ? [{ ...i, quantity: i.quantity - 1 }] : [])); const remove = (id: number) => setCartItems(items => items.filter(i => i.id !== id)); const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
   if (loading) return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-5 animate-pulse">☕</div><p className="text-[var(--coffee-brown)]">Brewing your coffee menu...</p></div></div>;
-  if (error) return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="coffee-card p-8 text-center"><div className="text-5xl">☕</div><h2 className="text-2xl font-bold coffee-heading mt-4">Something went wrong</h2><p className="coffee-muted mt-3">{error}</p><button onClick={() => window.location.reload()} className="coffee-button mt-6">Try Again</button></div></div>;
+  if (error) return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="coffee-card p-8 text-center"><div className="text-5xl">☕</div><h2 className="text-2xl font-bold coffee-heading mt-4">Something went wrong</h2><p className="coffee-muted mt-3">{error}</p><button onClick={loadCoffees} className="coffee-button mt-6">Try Again</button></div></div>;
   return <><Navbar /><div className="fixed right-5 bottom-5 z-50"><button onClick={() => setCartOpen(true)} className="w-16 h-16 rounded-full bg-[var(--coffee-dark)] text-white shadow-2xl hover:scale-105 transition-transform text-2xl relative">🛒{cartCount > 0 && <span className="absolute -top-1 -right-1 min-w-6 h-6 px-1 rounded-full bg-[var(--coffee-brown)] text-white text-xs font-bold flex items-center justify-center">{cartCount}</span>}</button></div><Home coffees={coffees} onLogin={() => navigate("/customer-auth")} /><Footer />{cartOpen && <CartDrawer items={cartItems} onClose={() => setCartOpen(false)} onIncrease={increase} onDecrease={decrease} onRemove={remove} />}</>;
 }
 
-function isAdminToken(): boolean {
-  const token = localStorage.getItem("access_token");
-  if (!token) return false;
-  try {
-    const payload = token.split(".")[1];
-    if (!payload) return false;
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const json = decodeURIComponent(atob(normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), "=")).split("").map(char => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`).join(""));
-    return JSON.parse(json).role === "admin";
-  } catch { return false; }
-}
-
+function isAdminToken(): boolean { const token = localStorage.getItem("access_token"); if (!token) return false; try { const payload = token.split(".")[1]; if (!payload) return false; const normalized = payload.replace(/-/g, "+").replace(/_/g, "/"); const json = decodeURIComponent(atob(normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), "=")).split("").map(char => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`).join("")); return JSON.parse(json).role === "admin"; } catch { return false; } }
 function ProtectedAdminPage({ children }: { children: ReactElement }) { return isAdminToken() ? children : <Navigate to="/login" replace />; }
 function ProtectedProfile() { return localStorage.getItem("customer_access_token") ? <Profile /> : <Navigate to="/customer-auth" replace />; }
 
-function App() {
-  return <Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/customer-auth" element={<CustomerAuth />} />
-    <Route path="/checkout" element={<Checkout />} />
-    <Route path="/my-orders" element={<MyOrders />} />
-    <Route path="/profile" element={<ProtectedProfile />} />
-    <Route path="/dashboard" element={<ProtectedAdminPage><Dashboard /></ProtectedAdminPage>} />
-    <Route path="/customers" element={<ProtectedAdminPage><Customers /></ProtectedAdminPage>} />
-    <Route path="/coffees" element={<ProtectedAdminPage><CoffeeManagement /></ProtectedAdminPage>} />
-    <Route path="/admin/orders" element={<ProtectedAdminPage><Orders /></ProtectedAdminPage>} />
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>;
-}
-
+function App() { return <Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<Login />} /><Route path="/customer-auth" element={<CustomerAuth />} /><Route path="/checkout" element={<Checkout />} /><Route path="/my-orders" element={localStorage.getItem("customer_access_token") ? <MyOrders /> : <Navigate to="/customer-auth" replace />} /><Route path="/profile" element={<ProtectedProfile />} /><Route path="/dashboard" element={<ProtectedAdminPage><Dashboard /></ProtectedAdminPage>} /><Route path="/customers" element={<ProtectedAdminPage><Customers /></ProtectedAdminPage>} /><Route path="/coffees" element={<ProtectedAdminPage><CoffeeManagement /></ProtectedAdminPage>} /><Route path="/admin/orders" element={<ProtectedAdminPage><Orders /></ProtectedAdminPage>} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
 export default App;
