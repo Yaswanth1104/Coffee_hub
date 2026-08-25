@@ -12,6 +12,9 @@ class Customer(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
     phone = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    pincode = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     orders = relationship("Order", backref="customer", cascade="all, delete-orphan")
