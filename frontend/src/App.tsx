@@ -31,33 +31,22 @@ function HomePage() {
   const increase = (id: number) => setCartItems(items => items.map(i => i.id === id ? { ...i, quantity: i.quantity + 1 } : i)); const decrease = (id: number) => setCartItems(items => items.flatMap(i => i.id !== id ? [i] : i.quantity > 1 ? [{ ...i, quantity: i.quantity - 1 }] : [])); const remove = (id: number) => setCartItems(items => items.filter(i => i.id !== id)); const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
   if (loading) return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-5 animate-pulse">☕</div><p className="text-[var(--coffee-brown)]">Brewing your coffee menu...</p></div></div>;
   if (error) return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="coffee-card p-8 text-center"><div className="text-5xl">☕</div><h2 className="text-2xl font-bold coffee-heading mt-4">Something went wrong</h2><p className="coffee-muted mt-3">{error}</p><button onClick={() => window.location.reload()} className="coffee-button mt-6">Try Again</button></div></div>;
-  return <><Navbar /><div className="fixed right-5 bottom-5 z-50"><button onClick={() => setCartOpen(true)} className="w-16 h-16 rounded-full bg-[var(--coffee-dark)] text-white shadow-2xl hover:scale-105 transition-transform text-2xl relative">🛒{cartCount > 0 && <span className="absolute -top-1 -right-1 min-w-6 h-6 px-1 rounded-full bg-[var(--coffee-brown)] text-white text-xs font-bold flex items-center justify-center">{cartCount}</span>}</button></div><Home coffees={coffees} onLogin={() => navigate("/login")} /><Footer />{cartOpen && <CartDrawer items={cartItems} onClose={() => setCartOpen(false)} onIncrease={increase} onDecrease={decrease} onRemove={remove} />}</>;
+  return <><Navbar /><div className="fixed right-5 bottom-5 z-50"><button onClick={() => setCartOpen(true)} className="w-16 h-16 rounded-full bg-[var(--coffee-dark)] text-white shadow-2xl hover:scale-105 transition-transform text-2xl relative">🛒{cartCount > 0 && <span className="absolute -top-1 -right-1 min-w-6 h-6 px-1 rounded-full bg-[var(--coffee-brown)] text-white text-xs font-bold flex items-center justify-center">{cartCount}</span>}</button></div><Home coffees={coffees} onLogin={() => navigate("/customer-auth")} /><Footer />{cartOpen && <CartDrawer items={cartItems} onClose={() => setCartOpen(false)} onIncrease={increase} onDecrease={decrease} onRemove={remove} />}</>;
 }
 
 function isAdminToken(): boolean {
   const token = localStorage.getItem("access_token");
   if (!token) return false;
-
   try {
     const payload = token.split(".")[1];
     if (!payload) return false;
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const json = decodeURIComponent(
-      atob(normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), "="))
-        .split("")
-        .map(char => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-        .join("")
-    );
+    const json = decodeURIComponent(atob(normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), "=")).split("").map(char => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`).join(""));
     return JSON.parse(json).role === "admin";
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
-function ProtectedAdminPage({ children }: { children: ReactElement }) {
-  return isAdminToken() ? children : <Navigate to="/login" replace />;
-}
-
+function ProtectedAdminPage({ children }: { children: ReactElement }) { return isAdminToken() ? children : <Navigate to="/login" replace />; }
 function ProtectedProfile() { return localStorage.getItem("customer_access_token") ? <Profile /> : <Navigate to="/customer-auth" replace />; }
 
 function App() {
