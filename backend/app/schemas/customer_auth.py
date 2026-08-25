@@ -19,3 +19,12 @@ class CustomerAuthResponse(BaseModel):
     customer_id: int
     name: str
     email: EmailStr
+
+
+class UnifiedLoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    role: str
+    customer_id: int | None = None
+    name: str | None = None
+    email: EmailStr
