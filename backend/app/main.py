@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database.connection import Base, engine
+from app.database.connection import Base, engine, ensure_legacy_columns
 from app.models.customer_account import CustomerAccount
 from app.models.order import Order, OrderItem
 
@@ -14,7 +14,9 @@ from app.routes.order import router as order_router
 from app.routes.admin_orders import router as admin_orders_router
 
 
+# Keep existing local databases compatible with the current SQLAlchemy models.
 Base.metadata.create_all(bind=engine)
+ensure_legacy_columns()
 
 
 app = FastAPI(
