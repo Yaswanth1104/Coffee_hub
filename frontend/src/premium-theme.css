@@ -1,94 +1,187 @@
-/* =========================================================
-   COFFEEHUB — PREMIUM CAFÉ THEME V2
-   Visual-only layer: keeps existing routing, API calls and auth intact.
-   ========================================================= */
+/* CoffeeHub — Modern Artisan Cafe Theme */
 :root {
-  --premium-espresso: #24130d;
-  --premium-roast: #3a2116;
-  --premium-copper: #9a5b32;
-  --premium-caramel: #d39a62;
-  --premium-line: rgba(67, 38, 24, .13);
+  --premium-espresso: #18251f;
+  --premium-roast: #294137;
+  --premium-terracotta: #b76545;
+  --premium-sand: #ead8c5;
+  --premium-cream: #fbf7f0;
+  --premium-ink: #1e2b26;
+  --premium-muted: #6f756e;
+  --premium-line: rgba(31, 52, 43, .13);
 }
 
-body { background: #f7eee4; }
+body {
+  background: #fbf7f0;
+}
 
-/* ADMIN DASHBOARD */
+/* Global visual language */
+.coffee-page {
+  background:
+    radial-gradient(circle at 7% 8%, rgba(183,101,69,.10), transparent 25%),
+    radial-gradient(circle at 92% 30%, rgba(73,105,89,.10), transparent 27%),
+    linear-gradient(135deg, #fbf7f0 0%, #f4eadf 100%) !important;
+}
+
+.coffee-navbar {
+  background: rgba(251,247,240,.88) !important;
+  border-bottom: 1px solid var(--premium-line) !important;
+  box-shadow: 0 8px 30px rgba(31,52,43,.07) !important;
+}
+
+.coffee-brand-mark {
+  background: linear-gradient(145deg, #183129, #b76545) !important;
+  color: #fff7ef !important;
+  box-shadow: 0 9px 22px rgba(31,52,43,.20) !important;
+}
+
+.coffee-brand-copy strong,
+.coffee-heading,
+.coffee-nav-links button:hover,
+.coffee-nav-text:hover {
+  color: var(--premium-espresso) !important;
+}
+
+.coffee-brand-copy small,
+.coffee-nav-links button:hover,
+.coffee-nav-text:hover {
+  color: var(--premium-terracotta) !important;
+}
+
+.coffee-nav-cta,
+.coffee-button {
+  background: linear-gradient(135deg, #183129 0%, #315448 72%, #b76545 145%) !important;
+  box-shadow: 0 10px 24px rgba(24,49,41,.18) !important;
+}
+
+.coffee-nav-cta:hover,
+.coffee-button:hover {
+  box-shadow: 0 16px 30px rgba(24,49,41,.24) !important;
+}
+
+.coffee-nav-outline:hover,
+.coffee-button-outline:hover {
+  background: #183129 !important;
+  border-color: #183129 !important;
+}
+
+.coffee-user-pill span {
+  background: #ead8c5 !important;
+  color: #7e4937 !important;
+}
+
+.coffee-card {
+  background: rgba(255,252,247,.94) !important;
+  border-color: var(--premium-line) !important;
+  box-shadow: 0 22px 65px rgba(31,52,43,.09), 0 4px 14px rgba(31,52,43,.04) !important;
+}
+
+.coffee-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 80px rgba(31,52,43,.13), 0 6px 18px rgba(31,52,43,.05) !important;
+}
+
+.coffee-input:focus {
+  border-color: #b76545 !important;
+  box-shadow: 0 0 0 4px rgba(183,101,69,.15) !important;
+}
+
+/* Menu cards: stronger visual hierarchy */
+article.coffee-card .group-hover\\:shadow-lg,
+article.coffee-card button {
+  transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+}
+
+/* Admin shell */
 aside[class*="bg-[#1b120e]"] {
   background:
-    radial-gradient(circle at 80% 8%, rgba(211,154,98,.16), transparent 24%),
-    radial-gradient(circle at 15% 75%, rgba(154,91,50,.14), transparent 28%),
-    linear-gradient(180deg, #1b100b 0%, #28160f 58%, #170c08 100%) !important;
-  box-shadow: 14px 0 45px rgba(36,19,13,.12);
+    radial-gradient(circle at 82% 8%, rgba(183,101,69,.18), transparent 24%),
+    radial-gradient(circle at 12% 82%, rgba(73,105,89,.20), transparent 28%),
+    linear-gradient(180deg, #14241e 0%, #1b332a 56%, #102019 100%) !important;
+  box-shadow: 14px 0 45px rgba(24,49,41,.16);
 }
-aside[class*="bg-[#1b120e]"] nav button { transition: transform .22s ease, background .22s ease, box-shadow .22s ease; }
-aside[class*="bg-[#1b120e]"] nav button:hover { transform: translateX(4px); background: rgba(255,255,255,.08); }
+
+aside[class*="bg-[#1b120e]"] nav button {
+  border: 1px solid transparent;
+  transition: transform .22s ease, background .22s ease, border-color .22s ease;
+}
+
+aside[class*="bg-[#1b120e]"] nav button:hover {
+  transform: translateX(4px);
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.08);
+}
+
 main > header[class*="bg-[#fffaf4]"] {
-  background: rgba(255,250,244,.88) !important;
-  box-shadow: 0 1px 0 rgba(67,38,24,.08), 0 12px 35px rgba(67,38,24,.05);
+  background: rgba(255,250,244,.90) !important;
+  box-shadow: 0 1px 0 rgba(31,52,43,.08), 0 12px 35px rgba(31,52,43,.06);
+  backdrop-filter: blur(16px);
 }
+
 [class*="bg-[#fffaf4]"][class*="rounded-2xl"],
 [class*="bg-[#fffaf4]"][class*="rounded-3xl"] {
   border-color: var(--premium-line) !important;
-  box-shadow: 0 10px 35px rgba(67,38,24,.06), 0 2px 8px rgba(67,38,24,.04) !important;
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  box-shadow: 0 10px 35px rgba(31,52,43,.06), 0 2px 8px rgba(31,52,43,.04) !important;
 }
-[class*="bg-[#fffaf4]"][class*="rounded-2xl"]:hover,
-[class*="bg-[#fffaf4]"][class*="rounded-3xl"]:hover {
-  border-color: rgba(154,91,50,.22) !important;
-  box-shadow: 0 18px 48px rgba(67,38,24,.10), 0 3px 10px rgba(67,38,24,.05) !important;
-}
+
 [class*="bg-[#241610]"][class*="rounded-xl"],
 [class*="bg-[#241610]"][class*="rounded-full"] {
-  background: linear-gradient(135deg, #24130d, #5a301d) !important;
-  box-shadow: 0 10px 24px rgba(36,19,13,.16);
-  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
-}
-[class*="bg-[#241610]"][class*="rounded-xl"]:hover,
-[class*="bg-[#241610]"][class*="rounded-full"]:hover {
-  transform: translateY(-2px); box-shadow: 0 15px 30px rgba(36,19,13,.23); filter: brightness(1.06);
-}
-[class*="bg-[#2b1a12]"] {
-  background: radial-gradient(circle at 95% 5%, rgba(211,154,98,.15), transparent 27%), linear-gradient(145deg, #29170f, #1b0e09) !important;
-  border: 1px solid rgba(211,154,98,.13);
+  background: linear-gradient(135deg, #183129, #315448) !important;
 }
 
-/* ADMIN / CUSTOMER AUTH */
+/* Auth pages */
 main[class*="bg-[#1b120e]"] {
   background:
-    radial-gradient(circle at 8% 12%, rgba(211,154,98,.22), transparent 25%),
-    radial-gradient(circle at 92% 86%, rgba(112,60,34,.30), transparent 30%),
-    linear-gradient(135deg, #160b07 0%, #2a170f 48%, #160b07 100%) !important;
+    radial-gradient(circle at 8% 12%, rgba(183,101,69,.22), transparent 25%),
+    radial-gradient(circle at 92% 86%, rgba(73,105,89,.25), transparent 30%),
+    linear-gradient(135deg, #101c18 0%, #234136 50%, #111c18 100%) !important;
 }
+
 main[class*="bg-[#1b120e]"] > div[class*="max-w-6xl"] {
-  border: 1px solid rgba(255,255,255,.35);
-  box-shadow: 0 35px 100px rgba(0,0,0,.42), 0 8px 25px rgba(0,0,0,.18) !important;
+  border: 1px solid rgba(255,255,255,.32);
+  box-shadow: 0 35px 100px rgba(10,24,19,.42), 0 8px 25px rgba(10,24,19,.18) !important;
 }
+
 main[class*="bg-[#1b120e]"] section[class*="bg-[#241610]"] {
   background:
-    radial-gradient(circle at 85% 18%, rgba(211,154,98,.20), transparent 25%),
-    radial-gradient(circle at 15% 90%, rgba(154,91,50,.15), transparent 30%),
-    linear-gradient(150deg, #21110b 0%, #3a1f13 52%, #1a0c08 100%) !important;
+    radial-gradient(circle at 85% 18%, rgba(183,101,69,.22), transparent 25%),
+    radial-gradient(circle at 15% 90%, rgba(73,105,89,.22), transparent 30%),
+    linear-gradient(150deg, #162c24 0%, #24483a 52%, #102019 100%) !important;
 }
-main[class*="bg-[#1b120e]"] section[class*="bg-[#241610]"] h1 { text-shadow: 0 8px 30px rgba(0,0,0,.22); }
-main[class*="bg-[#1b120e]"] section[class*="bg-[#fffaf4]"] {
-  background: radial-gradient(circle at 100% 0%, rgba(211,154,98,.10), transparent 30%), #fffaf4 !important;
-}
-main[class*="bg-[#1b120e]"] .coffee-input {
-  background: rgba(255,253,249,.92); border-color: #d4bdab; box-shadow: 0 4px 14px rgba(67,38,24,.035);
-}
-main[class*="bg-[#1b120e]"] .coffee-input:focus {
-  border-color: #9a5b32; box-shadow: 0 0 0 4px rgba(211,154,98,.18), 0 7px 18px rgba(67,38,24,.06);
-}
-main[class*="bg-[#1b120e]"] .coffee-button {
-  min-height: 54px; border-radius: 14px; background: linear-gradient(135deg, #25140d 0%, #6b3a22 100%); box-shadow: 0 12px 28px rgba(36,19,13,.18);
-}
-main[class*="bg-[#1b120e]"] .coffee-button:hover { box-shadow: 0 17px 34px rgba(36,19,13,.25); }
-main[class*="bg-[#1b120e]"] [class*="bg-[#f1e5d9]"] { background: #eee0d1 !important; border: 1px solid rgba(112,60,34,.08); }
-main[class*="bg-[#1b120e]"] span[class*="bg-[#f4e5d7]"] { box-shadow: 0 8px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.65); }
 
-@keyframes coffeeRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-main[class*="bg-[#1b120e]"] > div[class*="max-w-6xl"] { animation: coffeeRise .45s ease-out both; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+main[class*="bg-[#1b120e]"] section[class*="bg-[#241610]"] h1 {
+  text-shadow: 0 8px 30px rgba(0,0,0,.22);
 }
-@media (max-width: 900px) { main[class*="bg-[#1b120e]"] > div[class*="max-w-6xl"] { border-radius: 22px; } }
+
+main[class*="bg-[#1b120e]"] section[class*="bg-[#fffaf4]"] {
+  background: radial-gradient(circle at 100% 0%, rgba(183,101,69,.09), transparent 30%), #fffaf4 !important;
+}
+
+main[class*="bg-[#1b120e]"] .coffee-button {
+  min-height: 54px;
+  border-radius: 14px;
+}
+
+/* Motion */
+@keyframes coffeeRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.coffee-page > section,
+.coffee-navbar,
+.coffee-card {
+  animation: coffeeRise .45s ease-out both;
+}
+
+@media (max-width: 900px) {
+  main[class*="bg-[#1b120e]"] > div[class*="max-w-6xl"] { border-radius: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
