@@ -7,6 +7,7 @@ from app.models.coffee import Coffee
 from app.models.customer import Customer
 from app.models.order import Order, OrderItem
 from app.schemas.order import OrderCreate, OrderResponse
+from app.services.whatsapp import send_new_order_notification
 
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -63,6 +64,11 @@ def create_order(
     db.add(order)
     db.commit()
     db.refresh(order)
+
+    # Notification is deliberately best-effort. A WhatsApp/API outage must not
+    # turn a successful customer order into a failed checkout.
+    send_new_order_notification(order)
+
     return order
 
 
