@@ -29,20 +29,32 @@ function Orders() {
   const [updating, setUpdating] = useState<number | null>(null);
   const [filter, setFilter] = useState("all");
 
-  const load = async () => {
-    setLoading(true); setError("");
+  const load = async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    setError("");
     try {
       const token = localStorage.getItem("access_token");
       const response = await fetch("http://127.0.0.1:8000/admin/orders/", { headers: { Authorization: `Bearer ${token}` } });
       const body = await response.json().catch(() => ({}));
-      if (response.status === 401) { localStorage.removeItem("access_token"); navigate("/login", { replace: true }); return; }
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("access_token");
+        navigate("/login", { replace: true });
+        return;
+      }
       if (!response.ok) throw new Error(body.detail || "Unable to load orders");
       setOrders(body);
-    } catch (err) { setError(err instanceof Error ? err.message : "Unable to load orders"); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load orders");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load(true);
+    const timer = window.setInterval(() => load(false), 5000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const updateStatus = async (id: number, status: string) => {
     setUpdating(id); setError("");
@@ -52,7 +64,7 @@ function Orders() {
         method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status })
       });
       const body = await response.json().catch(() => ({}));
-      if (response.status === 401) { localStorage.removeItem("access_token"); navigate("/login", { replace: true }); return; }
+      if (response.status === 401 || response.status === 403) { localStorage.removeItem("access_token"); navigate("/login", { replace: true }); return; }
       if (!response.ok) throw new Error(body.detail || "Unable to update status");
       setOrders(current => current.map(order => order.id === id ? body : order));
     } catch (err) { setError(err instanceof Error ? err.message : "Unable to update status"); }
@@ -75,17 +87,17 @@ function Orders() {
       <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-[#eadfd6]">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
           <div><button onClick={() => navigate("/dashboard")} className="text-sm text-[#806c60] hover:text-[#4a2819]">← Dashboard</button><h1 className="text-2xl sm:text-3xl font-bold mt-1">Orders</h1></div>
-          <div className="flex gap-2"><button onClick={() => navigate("/")} className="hidden sm:inline-flex border border-[#dfd1c6] bg-white px-4 py-2.5 rounded-xl font-semibold text-sm">View site</button><button onClick={load} className="bg-[#3a2115] text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Refresh</button></div>
+          <div className="flex gap-2"><button onClick={() => navigate("/")} className="hidden sm:inline-flex border border-[#dfd1c6] bg-white px-4 py-2.5 rounded-xl font-semibold text-sm">View site</button><button onClick={() => load(true)} className="bg-[#3a2115] text-white px-4 py-2.5 rounded-xl font-semibold text-sm">Refresh</button></div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
-        <div className="mb-7"><p className="text-xs uppercase tracking-[.25em] text-[#9a725b]">Operations</p><p className="text-[#806c60] mt-2">Review incoming orders and keep customers updated.</p></div>
+        <div className="mb-7"><p className="text-xs uppercase tracking-[.25em] text-[#9a725b]">Operations</p><p className="text-[#806c60] mt-2">Review incoming orders and keep customers updated. New orders refresh automatically.</p></div>
 
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-7">
           <div className="bg-white border border-[#eadfd6] rounded-2xl p-5"><p className="text-sm text-[#806c60]">Total orders</p><p className="text-3xl font-bold mt-2">{orders.length}</p></div>
           <div className="bg-white border border-[#eadfd6] rounded-2xl p-5"><p className="text-sm text-[#806c60]">Needs attention</p><p className="text-3xl font-bold mt-2">{pending}</p></div>
-          <div className="bg-white border border-[#eadfd6] rounded-2xl p-5"><p className="text-sm text-[#806c60]">Order value</p><p className="text-3xl font-bold mt-2">₹{revenue.toFixed(0)}</p></div>
+          <div className="bg-white border border-[#eadfd6] rounded-2xl p-5"><p className="text-sm text-[#806c6 0]">Order value</p><p className="text-3xl font-bold mt-2">₹{revenue.toFixed(0)}</p></div>
         </section>
 
         <div className="flex flex-wrap gap-2 mb-6">
