@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from app.database.connection import Base
@@ -12,3 +13,5 @@ class Customer(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     phone = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    orders = relationship("Order", backref="customer", cascade="all, delete-orphan")
