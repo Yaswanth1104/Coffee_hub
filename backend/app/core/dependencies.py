@@ -33,6 +33,18 @@ def get_current_admin(
         )
 
     # -------------------------
+    # VERIFY ADMIN ROLE
+    # -------------------------
+
+    role = payload.get("role")
+
+    if role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+
+    # -------------------------
     # GET ADMIN ID FROM TOKEN
     # -------------------------
 
