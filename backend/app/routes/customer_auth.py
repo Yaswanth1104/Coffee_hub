@@ -1,14 +1,24 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, hash_password, verify_password
 from app.database.connection import get_db
+from app.models.admin import Admin
 from app.models.customer import Customer
 from app.models.customer_account import CustomerAccount
-from app.schemas.customer_auth import CustomerAuthResponse, CustomerLogin, CustomerRegister
+from app.schemas.customer_auth import (
+    CustomerAuthResponse,
+    CustomerLogin,
+    CustomerRegister,
+    UnifiedLoginResponse,
+)
 
 
 router = APIRouter(prefix="/customer-auth", tags=["Customer Authentication"])
+
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "yashuchowdary565@gmail.com").strip().lower()
 
 
 @router.post("/register", response_model=CustomerAuthResponse, status_code=status.HTTP_201_CREATED)
@@ -38,9 +48,28 @@ def register_customer(data: CustomerRegister, db: Session = Depends(get_db)):
     )
 
 
-@router.post("/login", response_model=CustomerAuthResponse)
-def login_customer(data: CustomerLogin, db: Session = Depends(get_db)):
-    customer = db.query(Customer).filter(Customer.email == data.email).first()
+@router.post("/login", response_model=UnifiedLoginResponse)
+def login_unified(data: CustomerLogin, db: Session = Depends(get_db)):
+    """Single login entry point for both administrators and customers."""
+    email = data.email.strip().lower()
+
+    # Admin credentials always take the admin path.
+    if email == ADMIN_EMAIL:
+        admin = db.query(Admin).filter(Admin.email == ADMIN_EMAIL).first()
+        if admin and verify_password(data.password, admin.password):
+            token = create_access_token(
+                {"sub": str(admin.id), "email": ADMIN_EMAIL, "role": "admin"}
+            )
+            return UnifiedLoginResponse(
+                access_token=token,
+                role="admin",
+                name=admin.name,
+                email=admin.email,
+            )
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # Any other valid account is authenticated as a customer.
+    customer = db.query(Customer).filter(Customer.email == email).first()
     if not customer:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
@@ -49,8 +78,9 @@ def login_customer(data: CustomerLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = create_access_token({"sub": str(customer.id), "role": "customer"})
-    return CustomerAuthResponse(
+    return UnifiedLoginResponse(
         access_token=token,
+        role="customer",
         customer_id=customer.id,
         name=customer.name,
         email=customer.email,
