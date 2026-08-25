@@ -4,6 +4,7 @@ import "./App.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import CustomerAuth from "./pages/CustomerAuth";
+import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/admin/Customers";
 import CoffeeManagement from "./pages/admin/CoffeeManagement";
@@ -14,12 +15,14 @@ export interface Coffee { id: number; name: string; description: string; price: 
 interface CartItem extends Coffee { quantity: number; }
 
 function CartDrawer({ items, onClose, onIncrease, onDecrease, onRemove }: { items: CartItem[]; onClose: () => void; onIncrease: (id: number) => void; onDecrease: (id: number) => void; onRemove: (id: number) => void; }) {
+  const navigate = useNavigate();
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const checkout = () => { onClose(); navigate("/checkout"); };
   return <><button aria-label="Close cart" onClick={onClose} className="fixed inset-0 z-[60] bg-black/35 backdrop-blur-[2px]" /><aside className="fixed right-0 top-0 z-[70] h-full w-full max-w-md bg-[#fbf7f2] shadow-2xl flex flex-col">
     <div className="flex items-center justify-between p-6 border-b border-black/10"><div><p className="text-[10px] uppercase tracking-[0.25em] text-[var(--coffee-brown)]">Your order</p><h2 className="text-2xl font-bold coffee-heading mt-1">Coffee Cart</h2></div><button onClick={onClose} className="w-10 h-10 rounded-full border border-black/10 text-xl">×</button></div>
     <div className="flex-1 overflow-y-auto p-6">{items.length === 0 ? <div className="h-full flex flex-col items-center justify-center text-center"><div className="text-7xl mb-5">☕</div><h3 className="text-xl font-bold coffee-heading">Your cart is empty</h3><p className="coffee-muted mt-2">Pick a coffee from the menu and it will appear here.</p><button onClick={onClose} className="coffee-button mt-6">Browse menu</button></div> : <div className="space-y-4">{items.map(item => <div key={item.id} className="rounded-2xl bg-white border border-black/5 p-4 shadow-sm"><div className="flex gap-4"><div className="w-16 h-16 rounded-xl bg-[#eadccf] flex items-center justify-center text-3xl">☕</div><div className="min-w-0 flex-1"><div className="flex justify-between gap-3"><div><h3 className="font-bold coffee-heading truncate">{item.name}</h3><p className="text-xs coffee-muted mt-1">₹{item.price} each</p></div><button onClick={() => onRemove(item.id)} className="text-xs text-red-700">Remove</button></div><div className="flex items-center justify-between mt-4"><div className="inline-flex items-center rounded-full border border-black/10 overflow-hidden"><button onClick={() => onDecrease(item.id)} className="w-9 h-8">−</button><span className="w-8 text-center text-sm font-semibold">{item.quantity}</span><button onClick={() => onIncrease(item.id)} className="w-9 h-8">+</button></div><span className="font-bold text-[var(--coffee-brown)]">₹{item.price * item.quantity}</span></div></div></div></div>)}</div>}</div>
-    {items.length > 0 && <div className="border-t border-black/10 p-6 bg-white"><div className="flex justify-between text-sm coffee-muted"><span>Items</span><span>{totalItems}</span></div><div className="flex justify-between mt-2 text-sm coffee-muted"><span>Subtotal</span><span>₹{subtotal}</span></div><div className="flex justify-between mt-4 pt-4 border-t border-black/10 text-xl font-bold coffee-heading"><span>Total</span><span>₹{subtotal}</span></div><button onClick={onClose} className="coffee-button w-full mt-5 justify-center">Proceed to checkout <span>→</span></button></div>}
+    {items.length > 0 && <div className="border-t border-black/10 p-6 bg-white"><div className="flex justify-between text-sm coffee-muted"><span>Items</span><span>{totalItems}</span></div><div className="flex justify-between mt-2 text-sm coffee-muted"><span>Subtotal</span><span>₹{subtotal}</span></div><div className="flex justify-between mt-4 pt-4 border-t border-black/10 text-xl font-bold coffee-heading"><span>Total</span><span>₹{subtotal}</span></div><button onClick={checkout} className="coffee-button w-full mt-5 justify-center">Proceed to checkout <span>→</span></button><p className="text-[10px] text-center coffee-muted mt-3">Sign in is required before placing an order.</p></div>}
   </aside></>;
 }
 
@@ -40,5 +43,5 @@ function HomePage() {
 function ProtectedDashboard() { const token = localStorage.getItem("access_token"); return token ? <Dashboard /> : <Navigate to="/login" replace />; }
 function ProtectedCustomers() { const token = localStorage.getItem("access_token"); return token ? <Customers /> : <Navigate to="/login" replace />; }
 function ProtectedCoffeeManagement() { const token = localStorage.getItem("access_token"); return token ? <CoffeeManagement /> : <Navigate to="/login" replace />; }
-function App() { return <Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<Login />} /><Route path="/customer-auth" element={<CustomerAuth />} /><Route path="/dashboard" element={<ProtectedDashboard />} /><Route path="/customers" element={<ProtectedCustomers />} /><Route path="/coffees" element={<ProtectedCoffeeManagement />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
+function App() { return <Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<Login />} /><Route path="/customer-auth" element={<CustomerAuth />} /><Route path="/checkout" element={<Checkout />} /><Route path="/dashboard" element={<ProtectedDashboard />} /><Route path="/customers" element={<ProtectedCustomers />} /><Route path="/coffees" element={<ProtectedCoffeeManagement />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
 export default App;
