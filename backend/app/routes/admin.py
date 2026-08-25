@@ -30,6 +30,7 @@ router = APIRouter(
 def create_admin(
     admin: AdminCreate,
     db: Session = Depends(get_db),
+    current_admin: dict = Depends(get_current_admin),
 ):
     # Check if email already exists
     existing_admin = db.query(Admin).filter(
@@ -173,11 +174,12 @@ def login_admin(
             detail="Invalid email or password",
         )
 
-    # Create JWT token
+    # Create JWT token with an explicit admin role
     access_token = create_access_token(
         data={
             "sub": str(admin.id),
             "email": admin.email,
+            "role": "admin",
         }
     )
 
