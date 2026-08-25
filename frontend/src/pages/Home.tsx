@@ -15,6 +15,21 @@ interface HomeProps {
   onLogin: () => void;
 }
 
+const coffeeImageMap: Record<string, string> = {
+  mocha: "/coffee-images/mocha.jpg",
+  americano: "/coffee-images/americano.jpg",
+  espresso: "/coffee-images/espresso.jpg",
+  "cold brew": "/coffee-images/cold-brew.jpg",
+  latte: "/coffee-images/latte.jpg",
+  cappuccino: "/coffee-images/cappuccino.jpg",
+  macchiato: "/coffee-images/macchiato.jpg",
+  "iced coffee": "/coffee-images/iced-coffee.jpg",
+};
+
+function getCoffeeImage(name: string) {
+  return coffeeImageMap[name.trim().toLowerCase()] || "/coffee-images/coffee-default.jpg";
+}
+
 function Home({ coffees, onLogin }: HomeProps) {
   const [activeCategory, setActiveCategory] = useState("All");
   const availableCoffees = coffees.filter((coffee) => coffee.is_available);
@@ -84,7 +99,7 @@ function Home({ coffees, onLogin }: HomeProps) {
         </div>
       </section>
 
-      <section id="menu" className="py-24 bg-white">
+      <section id="menu" className="py-24 bg-white/70">
         <div className="coffee-container">
           <div className="text-center mb-10">
             <p className="text-xs uppercase tracking-[0.3em] text-[var(--coffee-brown)]">Our Menu</p>
@@ -102,8 +117,8 @@ function Home({ coffees, onLogin }: HomeProps) {
                   aria-selected={activeCategory === category}
                   className={`rounded-full px-5 py-2.5 text-sm font-semibold border transition-all duration-300 ${
                     activeCategory === category
-                      ? "bg-[var(--coffee-dark)] text-white border-[var(--coffee-dark)] shadow-lg"
-                      : "bg-white text-[var(--coffee-dark)] border-black/10 hover:border-[var(--coffee-brown)] hover:-translate-y-0.5"
+                      ? "bg-[#183129] text-white border-[#183129] shadow-lg"
+                      : "bg-white text-[#183129] border-black/10 hover:border-[#b76545] hover:-translate-y-0.5"
                   }`}
                 >
                   {category}
@@ -119,30 +134,34 @@ function Home({ coffees, onLogin }: HomeProps) {
               <p className="coffee-muted mt-2">Our coffee menu is being prepared.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-7">
               {filteredCoffees.map((coffee) => (
                 <article key={coffee.id} className="coffee-card overflow-hidden group hover:-translate-y-2 transition-all duration-300">
-                  <div className="relative h-56 overflow-hidden bg-[linear-gradient(135deg,#efe4d7,#d7c1ad)] flex items-center justify-center">
-                    <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_30%_20%,white,transparent_40%)]" />
-                    <div className="relative text-8xl drop-shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">☕</div>
-                    <span className="absolute top-4 left-4 rounded-full bg-white/85 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-[0.16em] font-bold text-[var(--coffee-brown)]">
+                  <div className="relative h-64 overflow-hidden bg-[#ead8c5]">
+                    <img
+                      src={getCoffeeImage(coffee.name)}
+                      alt={`${coffee.name} coffee`}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={(event) => {
+                        const image = event.currentTarget;
+                        if (!image.src.endsWith("/coffee-default.jpg")) image.src = "/coffee-images/coffee-default.jpg";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#183129]/20 via-transparent to-white/10 pointer-events-none" />
+                    <span className="absolute top-4 left-4 rounded-full bg-[#fffaf5]/95 backdrop-blur px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] font-bold text-[#7e4937] shadow-sm">
                       {coffee.category}
                     </span>
-                    <span className="absolute top-4 right-4 rounded-full bg-[var(--coffee-dark)] text-white px-3 py-1 text-xs font-bold">
+                    <span className="absolute top-4 right-4 rounded-full bg-[#183129] text-white px-3 py-1.5 text-xs font-bold shadow-lg">
                       ₹{coffee.price}
                     </span>
                   </div>
 
                   <div className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-xl font-bold coffee-heading">{coffee.name}</h3>
-                        <p className="coffee-muted mt-3 leading-6 text-sm">{coffee.description}</p>
-                      </div>
-                    </div>
+                    <h3 className="text-xl font-bold coffee-heading">{coffee.name}</h3>
+                    <p className="coffee-muted mt-3 leading-6 text-sm min-h-12">{coffee.description}</p>
                     <div className="mt-6 flex items-center justify-between gap-3">
                       <span className="inline-flex items-center gap-2 text-xs font-semibold coffee-muted">
-                        <span className="w-2 h-2 rounded-full bg-green-600" /> Freshly available
+                        <span className="w-2 h-2 rounded-full bg-[#4f8b63] shadow-[0_0_0_4px_rgba(79,139,99,.10)]" /> Freshly available
                       </span>
                       <button
                         type="button"
@@ -173,7 +192,7 @@ function Home({ coffees, onLogin }: HomeProps) {
             </div>
             <div>
               <p className="coffee-muted text-lg leading-8">At CoffeeHub, we believe great coffee should slow things down. From carefully selected beans to every freshly brewed cup, we focus on quality, simplicity, and the moments that happen around coffee.</p>
-              <button onClick={onLogin} className="coffee-button mt-8">Admin Login</button>
+              <button onClick={onLogin} className="coffee-button mt-8">Sign in to CoffeeHub</button>
             </div>
           </div>
         </div>
