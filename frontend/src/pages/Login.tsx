@@ -1,67 +1,16 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../services/api";
 
 interface LoginResponse { access_token: string; token_type: string; }
-
 function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); setLoading(true); setError("");
-    try {
-      const response = await fetch("http://127.0.0.1:8000/admins/login", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password })
-      });
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.detail || "Invalid email or password");
-      const data: LoginResponse = body;
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("token_type", data.token_type);
-      navigate("/dashboard", { replace: true });
-    } catch (err) { setError(err instanceof Error ? err.message : "Login failed"); }
-    finally { setLoading(false); }
-  };
-
+  const navigate = useNavigate(); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [loading, setLoading] = useState(false); const [error, setError] = useState("");
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setLoading(true); setError(""); try { const response = await fetch(`${API_BASE_URL}/admins/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim().toLowerCase(), password }) }); const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.detail || "Invalid email or password"); const data: LoginResponse = body; localStorage.removeItem("customer_access_token"); localStorage.removeItem("customer"); localStorage.setItem("access_token", data.access_token); localStorage.setItem("token_type", data.token_type); navigate("/dashboard", { replace: true }); } catch (err) { setError(err instanceof Error ? err.message : "Login failed"); } finally { setLoading(false); } };
   return (
-    <main className="min-h-screen bg-[#1b120e] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_15%_20%,rgba(226,176,111,.22),transparent_30%),radial-gradient(circle_at_85%_80%,rgba(90,50,31,.45),transparent_35%)]" />
-      <div className="relative w-full max-w-6xl grid lg:grid-cols-[1.05fr_.95fr] bg-[#fffaf4] rounded-[30px] overflow-hidden shadow-[0_35px_100px_rgba(0,0,0,.35)]">
-        <section className="hidden lg:flex relative min-h-[680px] p-12 xl:p-16 flex-col justify-between text-white overflow-hidden bg-[#241610]">
-          <div className="absolute -right-28 -top-28 w-96 h-96 rounded-full border border-[#e2b06f]/20" />
-          <div className="absolute right-10 bottom-16 w-52 h-52 rounded-full border border-[#e2b06f]/10" />
-          <div className="relative z-10">
-            <button onClick={() => navigate("/")} className="flex items-center gap-3 text-left">
-              <span className="w-12 h-12 rounded-2xl bg-[#f4e5d7] text-[#5a321f] flex items-center justify-center text-2xl shadow-lg">☕</span>
-              <span><span className="block text-xl font-extrabold tracking-tight">CoffeeHub</span><span className="block text-[10px] uppercase tracking-[.28em] text-[#d7b89d]">Specialty Coffee</span></span>
-            </button>
-            <div className="mt-32 max-w-lg">
-              <p className="text-xs uppercase tracking-[.35em] text-[#e2b06f]">Crafted for coffee lovers</p>
-              <h1 className="text-5xl xl:text-6xl font-black leading-[1.02] tracking-[-.04em] mt-5">Your coffee business, beautifully managed.</h1>
-              <p className="text-[#d8c4b6] leading-7 mt-7 max-w-md">A focused workspace for your menu, customers and daily orders — built around the warmth of a great coffee shop.</p>
-            </div>
-          </div>
-          <div className="relative z-10 flex items-center gap-3 text-sm text-[#bfa595]"><span className="w-2 h-2 rounded-full bg-[#e2b06f]" /> Secure administrator workspace</div>
-        </section>
-
-        <section className="p-7 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-center">
-          <button onClick={() => navigate("/")} className="self-start text-sm font-semibold text-[#806b5e] hover:text-[#5a321f] mb-10">← Back to website</button>
-          <div className="lg:hidden flex items-center gap-3 mb-8"><span className="w-11 h-11 rounded-2xl bg-[#f0dfd0] text-[#5a321f] flex items-center justify-center text-2xl">☕</span><div><p className="text-xl font-extrabold text-[#241610]">CoffeeHub</p><p className="text-[10px] uppercase tracking-[.25em] text-[#9a725b]">Specialty Coffee</p></div></div>
-          <div className="mb-8"><p className="text-xs uppercase tracking-[.3em] text-[#a16d45] font-bold">Administrator access</p><h2 className="text-4xl sm:text-5xl font-black tracking-[-.035em] text-[#241610] mt-3">Welcome back.</h2><p className="text-[#806b5e] mt-3">Sign in to your CoffeeHub command center.</p></div>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div><label className="coffee-label">Email address</label><input type="email" placeholder="admin@example.com" value={email} onChange={e => setEmail(e.target.value)} required className="coffee-input" autoComplete="username" /></div>
-            <div><label className="coffee-label">Password</label><input type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required className="coffee-input" autoComplete="current-password" /></div>
-            {error && <div className="rounded-xl bg-red-50 border border-red-100 text-red-700 px-4 py-3 text-sm">{error}</div>}
-            <button type="submit" disabled={loading} className="coffee-button w-full disabled:opacity-50 disabled:cursor-not-allowed">{loading ? "Signing in..." : "Enter dashboard →"}</button>
-          </form>
-          <div className="mt-8 pt-6 border-t border-[#eadbcd] flex items-center justify-between text-xs text-[#907b6d]"><span>☕ CoffeeHub Admin</span><span>Authorized access only</span></div>
-        </section>
-      </div>
-    </main>
+    <main className="min-h-screen bg-[#1b120e] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden"><div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_15%_20%,rgba(226,176,111,.22),transparent_30%),radial-gradient(circle_at_85%_80%,rgba(90,50,31,.45),transparent_35%)]" /><div className="relative w-full max-w-6xl grid lg:grid-cols-[1.05fr_.95fr] bg-[#fffaf4] rounded-[30px] overflow-hidden shadow-[0_35px_100px_rgba(0,0,0,.35)]">
+      <section className="hidden lg:flex relative min-h-[680px] p-12 xl:p-16 flex-col justify-between text-white overflow-hidden bg-[#241610]"><div className="absolute -right-28 -top-28 w-96 h-96 rounded-full border border-[#e2b06f]/20" /><div className="absolute right-10 bottom-16 w-52 h-52 rounded-full border border-[#e2b06f]/10" /><div className="relative z-10"><button onClick={() => navigate("/")} className="flex items-center gap-3 text-left"><span className="w-12 h-12 rounded-2xl bg-[#f4e5d7] text-[#5a321f] flex items-center justify-center text-2xl shadow-lg">☕</span><span><span className="block text-xl font-extrabold tracking-tight">CoffeeHub</span><span className="block text-[10px] uppercase tracking-[.28em] text-[#d7b89d]">Specialty Coffee</span></span></button><div className="mt-32 max-w-lg"><p className="text-xs uppercase tracking-[.35em] text-[#e2b06f]">Crafted for coffee lovers</p><h1 className="text-5xl xl:text-6xl font-black leading-[1.02] tracking-[-.04em] mt-5">Your coffee business, beautifully managed.</h1><p className="text-[#d8c4b6] leading-7 mt-7 max-w-md">A focused workspace for your menu, customers and daily orders — built around the warmth of a great coffee shop.</p></div></div><div className="relative z-10 flex items-center gap-3 text-sm text-[#bfa595]"><span className="w-2 h-2 rounded-full bg-[#e2b06f]" /> Secure administrator workspace</div></section>
+      <section className="p-7 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-center"><button onClick={() => navigate("/")} className="self-start text-sm font-semibold text-[#806b5e] hover:text-[#5a321f] mb-10">← Back to website</button><div className="lg:hidden flex items-center gap-3 mb-8"><span className="w-11 h-11 rounded-2xl bg-[#f0dfd0] text-[#5a321f] flex items-center justify-center text-2xl">☕</span><div><p className="text-xl font-extrabold text-[#241610]">CoffeeHub</p><p className="text-[10px] uppercase tracking-[.25em] text-[#9a725b]">Specialty Coffee</p></div></div><div className="mb-8"><p className="text-xs uppercase tracking-[.3em] text-[#a16d45] font-bold">Administrator access</p><h2 className="text-4xl sm:text-5xl font-black tracking-[-.035em] text-[#241610] mt-3">Welcome back.</h2><p className="text-[#806b5e] mt-3">Sign in to your CoffeeHub command center.</p></div><form onSubmit={handleSubmit} className="space-y-5"><div><label className="coffee-label">Email address</label><input type="email" placeholder="admin@example.com" value={email} onChange={e => setEmail(e.target.value)} required className="coffee-input" autoComplete="username" /></div><div><label className="coffee-label">Password</label><input type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required className="coffee-input" autoComplete="current-password" /></div>{error && <div className="rounded-xl bg-red-50 border border-red-100 text-red-700 px-4 py-3 text-sm">{error}</div>}<button type="submit" disabled={loading} className="coffee-button w-full disabled:opacity-50 disabled:cursor-not-allowed">{loading ? "Signing in..." : "Enter dashboard →"}</button></form><div className="mt-8 pt-6 border-t border-[#eadbcd] flex items-center justify-between text-xs text-[#907b6d]"><span>☕ CoffeeHub Admin</span><span>Authorized access only</span></div></section>
+    </div></main>
   );
 }
-
 export default Login;
