@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.connection import Base, engine
+from app.models.customer_account import CustomerAccount
 
 from app.routes.customer import router as customer_router
+from app.routes.customer_auth import router as customer_auth_router
 from app.routes.admin import router as admin_router
 from app.routes.coffee import router as coffee_router
 
@@ -18,10 +20,6 @@ app = FastAPI(
 )
 
 
-# -------------------------
-# CORS CONFIGURATION
-# -------------------------
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -34,24 +32,17 @@ app.add_middleware(
 )
 
 
-# -------------------------
-# ROUTES
-# -------------------------
-
 app.include_router(customer_router)
+app.include_router(customer_auth_router)
 app.include_router(admin_router)
 app.include_router(coffee_router)
 
 
 @app.get("/")
 def root():
-    return {
-        "message": "CoffeeHub API is running"
-    }
+    return {"message": "CoffeeHub API is running"}
 
 
 @app.get("/health")
 def health():
-    return {
-        "status": "healthy"
-    }
+    return {"status": "healthy"}
