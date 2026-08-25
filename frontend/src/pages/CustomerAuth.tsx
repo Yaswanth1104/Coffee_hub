@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../services/api";
 
 type Mode = "login" | "register";
 interface CustomerAuthResponse { access_token: string; token_type: string; customer_id: number; name: string; email: string; }
-interface AdminAuthResponse { access_token: string; token_type: string; }
-const ADMIN_EMAIL = "yashuchowdary565@gmail.com";
 
 function CustomerAuth() {
   const navigate = useNavigate();
@@ -19,13 +18,8 @@ function CustomerAuth() {
     setLoading(true);
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      if (mode === "login" && normalizedEmail === ADMIN_EMAIL) {
-        const response = await fetch("http://127.0.0.1:8000/admins/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: normalizedEmail, password }) });
-        const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.detail || "Invalid email or password");
-        const data: AdminAuthResponse = body; localStorage.removeItem("customer_access_token"); localStorage.removeItem("customer"); localStorage.setItem("access_token", data.access_token); localStorage.setItem("token_type", data.token_type); window.dispatchEvent(new Event("coffeehub:admin-auth")); navigate("/dashboard", { replace: true }); return;
-      }
       const endpoint = mode === "register" ? "register" : "login";
-      const response = await fetch(`http://127.0.0.1:8000/customer-auth/${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mode === "register" ? { name, email: normalizedEmail, phone: phone || null, password } : { email: normalizedEmail, password }) });
+      const response = await fetch(`${API_BASE_URL}/customer-auth/${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(mode === "register" ? { name: name.trim(), email: normalizedEmail, phone: phone || null, password } : { email: normalizedEmail, password }) });
       const body = await response.json().catch(() => ({})); if (!response.ok) throw new Error(body.detail || "Authentication failed");
       const data: CustomerAuthResponse = body; localStorage.removeItem("access_token"); localStorage.removeItem("token_type"); localStorage.setItem("customer_access_token", data.access_token); localStorage.setItem("customer", JSON.stringify({ id: data.customer_id, name: data.name, email: data.email })); window.dispatchEvent(new Event("coffeehub:customer-auth")); navigate("/");
     } catch (err) { setError(err instanceof Error ? err.message : "Authentication failed"); } finally { setLoading(false); }
@@ -41,7 +35,6 @@ function CustomerAuth() {
             <div className="mt-32 max-w-md"><p className="text-xs uppercase tracking-[.35em] text-[#e2b06f]">Slow coffee. Good moments.</p><h1 className="text-5xl xl:text-6xl font-black leading-[1.03] tracking-[-.04em] mt-5">Your next favourite cup starts here.</h1><p className="text-[#d8c4b6] leading-7 mt-7">Create your CoffeeHub account, discover your favourite brews and keep your orders close.</p></div>
           </div><p className="text-sm text-[#bfa595]">Made for everyday coffee rituals.</p>
         </section>
-
         <section className="p-7 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-center">
           <button onClick={() => navigate("/")} className="self-start text-sm font-semibold text-[#806b5e] hover:text-[#5a321f] mb-8">← Back to CoffeeHub</button>
           <div className="lg:hidden flex items-center gap-3 mb-8"><span className="w-11 h-11 rounded-2xl bg-[#f0dfd0] text-[#5a321f] flex items-center justify-center text-2xl">☕</span><div><p className="text-xl font-extrabold text-[#241610]">CoffeeHub</p><p className="text-[10px] uppercase tracking-[.25em] text-[#9a725b]">Specialty Coffee</p></div></div>
@@ -61,5 +54,4 @@ function CustomerAuth() {
     </main>
   );
 }
-
 export default CustomerAuth;
