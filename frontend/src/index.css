@@ -1,56 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --coffee-ink: #1b120e;
-  --coffee-dark: #241610;
-  --coffee-brown: #5a321f;
-  --coffee-medium: #8b5e3c;
-  --coffee-caramel: #c58a55;
-  --coffee-gold: #e2b06f;
-  --coffee-cream: #f7efe5;
-  --coffee-paper: #fffaf4;
-  --coffee-line: #e8d9ca;
-  --coffee-muted: #7d6a5d;
+  --coffee-ink: #21130d;
+  --coffee-dark: #2b160e;
+  --coffee-brown: #684027;
+  --coffee-medium: #916044;
+  --coffee-caramel: #c28a58;
+  --coffee-gold: #d9ad76;
+  --coffee-cream: #f5ece2;
+  --coffee-paper: #fffaf5;
+  --coffee-line: #e5d6c7;
+  --coffee-muted: #77675c;
+  --coffee-green: #52644d;
   --white: #ffffff;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  min-width: 320px;
-  background: var(--coffee-paper);
-  color: var(--coffee-ink);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+body { margin: 0; min-width: 320px; background: var(--coffee-paper); color: var(--coffee-ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 a { text-decoration: none; color: inherit; }
 
-.coffee-page {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 12% 5%, rgba(226,176,111,.22), transparent 27%),
-    radial-gradient(circle at 88% 92%, rgba(90,50,31,.12), transparent 28%),
-    linear-gradient(135deg, #fffaf4 0%, #f5eadf 100%);
-}
+.coffee-navbar { position: sticky; top: 0; z-index: 50; background: rgba(255,250,245,.90); border-bottom: 1px solid rgba(104,64,39,.12); box-shadow: 0 8px 30px rgba(43,22,14,.055); backdrop-filter: blur(18px); }
+.coffee-navbar-inner { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+.coffee-brand { display: inline-flex; align-items: center; gap: 12px; border: 0; background: transparent; padding: 0; color: var(--coffee-dark); text-align: left; }
+.coffee-brand-mark { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 13px; background: linear-gradient(145deg,#3a1e12,#7b482b); color: #f9e9d7; font-family: Georgia, serif; font-size: 22px; box-shadow: 0 8px 20px rgba(43,22,14,.18); }
+.coffee-brand-copy { display: flex; flex-direction: column; line-height: 1; gap: 5px; }
+.coffee-brand-copy strong { font-family: Georgia, serif; font-size: 21px; letter-spacing: -.03em; }
+.coffee-brand-copy small { color: var(--coffee-medium); font-size: 8px; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; }
+.coffee-nav-links { display: flex; align-items: center; gap: 30px; margin-left: auto; }
+.coffee-nav-links button, .coffee-nav-text { border: 0; background: transparent; color: #5b4a40; font-size: 13px; font-weight: 650; transition: color .2s ease, transform .2s ease; }
+.coffee-nav-links button:hover, .coffee-nav-text:hover { color: var(--coffee-brown); transform: translateY(-1px); }
+.coffee-nav-actions { display: flex; align-items: center; gap: 12px; }
+.coffee-nav-cta { display: inline-flex; align-items: center; gap: 14px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 11px; color: #fff; background: linear-gradient(135deg,#2b160e,#714326); font-size: 12px; font-weight: 750; box-shadow: 0 8px 20px rgba(43,22,14,.16); transition: transform .2s ease, box-shadow .2s ease; }
+.coffee-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(43,22,14,.23); }
+.coffee-nav-outline { min-height: 40px; padding: 0 14px; border: 1px solid #d8c7b8; border-radius: 10px; background: transparent; color: #624a3c; font-size: 12px; font-weight: 700; }
+.coffee-nav-outline:hover { background: #f0e4d8; }
+.coffee-user-pill { display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--coffee-dark); font-size: 12px; font-weight: 750; }
+.coffee-user-pill span { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; background: #ead6c3; color: var(--coffee-brown); }
+.coffee-mobile-action { display: none; width: 40px; height: 40px; border: 1px solid #d9c6b5; border-radius: 50%; background: #fffaf5; color: var(--coffee-brown); font-weight: 800; }
+
+.coffee-page { min-height: 100vh; background: radial-gradient(circle at 12% 5%, rgba(217,173,118,.18), transparent 27%), radial-gradient(circle at 88% 92%, rgba(104,64,39,.10), transparent 28%), linear-gradient(135deg,#fffaf5 0%,#f5ece2 100%); }
 .coffee-container { width: 100%; max-width: 1200px; margin: 0 auto; padding-inline: 24px; }
-.coffee-card {
-  background: rgba(255,250,244,.96);
-  border: 1px solid rgba(90,50,31,.12);
-  border-radius: 24px;
-  box-shadow: 0 24px 70px rgba(36,22,16,.10), 0 4px 14px rgba(36,22,16,.05);
-  backdrop-filter: blur(14px);
-}
-.coffee-card:hover { box-shadow: 0 28px 78px rgba(36,22,16,.13), 0 6px 18px rgba(36,22,16,.06); }
-.coffee-button {
-  display: inline-flex; align-items: center; justify-content: center; min-height: 50px;
-  background: linear-gradient(135deg, #241610, #5a321f); color: #fff;
-  border: 0; border-radius: 13px; padding: 12px 22px; font-weight: 700;
-  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
-}
-.coffee-button:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(36,22,16,.18); filter: brightness(1.08); }
+.coffee-card { background: rgba(255,250,245,.96); border: 1px solid rgba(104,64,39,.12); border-radius: 24px; box-shadow: 0 24px 70px rgba(43,22,14,.10), 0 4px 14px rgba(43,22,14,.05); backdrop-filter: blur(14px); transition: transform .25s ease, box-shadow .25s ease; }
+.coffee-card:hover { box-shadow: 0 28px 78px rgba(43,22,14,.13), 0 6px 18px rgba(43,22,14,.06); }
+.coffee-button { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; background: linear-gradient(135deg,#2b160e,#684027); color: #fff; border: 0; border-radius: 13px; padding: 12px 22px; font-weight: 700; transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+.coffee-button:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(43,22,14,.18); filter: brightness(1.08); }
 .coffee-button:disabled { transform: none; box-shadow: none; filter: none; }
 .coffee-button-outline { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; background: transparent; color: var(--coffee-dark); border: 1px solid #cdb8a5; border-radius: 13px; padding: 11px 22px; font-weight: 650; transition: .2s ease; }
 .coffee-button-outline:hover { background: var(--coffee-dark); color: #fff; border-color: var(--coffee-dark); transform: translateY(-1px); }
@@ -63,4 +59,6 @@ a { text-decoration: none; color: inherit; }
 .coffee-input:focus { border-color: #8b5e3c; box-shadow: 0 0 0 4px rgba(197,138,85,.16); transform: translateY(-1px); }
 textarea.coffee-input { min-height: 118px; line-height: 1.55; resize: vertical; }
 
-@media (max-width: 640px) { .coffee-container { padding-inline: 16px; } .coffee-card { border-radius: 20px; } .coffee-page { padding-top: 28px; padding-bottom: 40px; } }
+@media (max-width: 850px) { .coffee-nav-links { gap: 18px; } .coffee-nav-actions .coffee-nav-text, .coffee-nav-actions .coffee-user-pill b { display: none; } }
+@media (max-width: 640px) { .coffee-container { padding-inline: 16px; } .coffee-nav-links, .coffee-nav-actions { display: none; } .coffee-mobile-action { display: grid; place-items: center; } .coffee-card { border-radius: 20px; } .coffee-page { padding-top: 28px; padding-bottom: 40px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
