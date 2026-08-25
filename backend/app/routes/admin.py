@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.models.admin import Admin
-from app.schemas.admin import AdminCreate, AdminResponse, AdminLogin, TokenResponse
+from app.schemas.admin import AdminResponse, AdminLogin, TokenResponse, AdminCreate
 from app.core.security import hash_password, verify_password, create_access_token
 from app.core.dependencies import get_current_admin
 
@@ -11,44 +11,12 @@ from app.core.dependencies import get_current_admin
 router = APIRouter(prefix="/admins", tags=["Admins"])
 
 
-@router.post("/", response_model=AdminResponse)
-def create_admin(
-    admin: AdminCreate,
-    db: Session = Depends(get_db),
-    current_admin: Admin = Depends(get_current_admin),
-):
-    """Keep CoffeeHub as a single-admin system.
-
-    The first administrator is created during initial setup. Once an admin
-    exists, no second administrator can be created from the API.
-    """
-    if db.query(Admin).count() >= 1:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="CoffeeHub allows only one administrator account",
-        )
-
-    existing_admin = db.query(Admin).filter(Admin.email == admin.email).first()
-    if existing_admin:
-        raise HTTPException(status_code=400, detail="Admin with this email already exists")
-
-    new_admin = Admin(
-        name=admin.name,
-        email=admin.email,
-        password=hash_password(admin.password),
-    )
-    db.add(new_admin)
-    db.commit()
-    db.refresh(new_admin)
-    return new_admin
-
-
 @router.get("/", response_model=list[AdminResponse])
 def get_admins(
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin),
 ):
-    return db.query(Admin).all()
+    return db.query(Admin).order_by(Admin.id.asc()).all()
 
 
 @router.get("/{admin_id}", response_model=AdminResponse)
@@ -70,6 +38,9 @@ def update_admin(
     db: Session = Depends(get_db),
     current_admin: Admin = Depends(get_current_admin),
 ):
+    if admin_id != current_admin.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only update the administrator account")
+
     admin = db.query(Admin).filter(Admin.id == admin_id).first()
     if admin is None:
         raise HTTPException(status_code=404, detail="Admin not found")
