@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import "./App.css";
+import "./premium-theme.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import CustomerAuth from "./pages/CustomerAuth";
