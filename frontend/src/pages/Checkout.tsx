@@ -1,16 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createOrder, getCustomerProfile, type Order } from "../services/api";
 
 interface CartItem { id: number; name: string; price: number; quantity: number; }
-interface OrderResponse { id: number; total: number; status: string; }
-interface CustomerProfile { name: string; phone: string | null; address: string | null; city: string | null; pincode: string | null; }
-interface ApiError { detail?: string | Array<{ msg?: string }>; }
-
-function getErrorMessage(body: ApiError, fallback: string) {
-  if (typeof body.detail === "string") return body.detail;
-  if (Array.isArray(body.detail)) return body.detail.map((item) => item.msg).filter(Boolean).join(" · ") || fallback;
-  return fallback;
-}
 
 function Checkout() {
   const navigate = useNavigate();
@@ -24,26 +16,13 @@ function Checkout() {
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [error, setError] = useState("");
-  const [placedOrder, setPlacedOrder] = useState<OrderResponse | null>(null);
+  const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("customer_access_token");
     if (!token) { setProfileLoading(false); return; }
-    fetch("http://127.0.0.1:8000/customer-profile/me", { headers: { Authorization: `Bearer ${token}` } })
-      .then(async (response) => {
-        if (!response.ok) return null;
-        return (await response.json()) as CustomerProfile;
-      })
-      .then((profile) => {
-        if (!profile) return;
-        setForm((current) => ({
-          name: profile.name || current.name,
-          phone: profile.phone || current.phone,
-          address: profile.address || current.address,
-          city: profile.city || current.city,
-          pincode: profile.pincode || current.pincode,
-        }));
-      })
+    getCustomerProfile()
+      .then((profile) => setForm((current) => ({ name: profile.name || current.name, phone: profile.phone || current.phone, address: profile.address || current.address, city: profile.city || current.city, pincode: profile.pincode || current.pincode })))
       .catch(() => undefined)
       .finally(() => setProfileLoading(false));
   }, []);
@@ -61,7 +40,7 @@ function Checkout() {
   );
 
   if (placedOrder) return (
-    <main className="coffee-page min-h-screen flex items-center justify-center px-5"><section className="coffee-card bg-white p-10 text-center max-w-lg"><div className="text-7xl">🎉</div><p className="text-[10px] uppercase tracking-[0.3em] text-[var(--coffee-brown)] mt-5">Order confirmed</p><h1 className="text-4xl font-bold coffee-heading mt-2">Thank you, {form.name.split(" ")[0]}!</h1><p className="coffee-muted mt-3">Your order <strong>#{placedOrder.id}</strong> has been placed successfully.</p><div className="rounded-2xl bg-[#fbf7f2] p-5 mt-7 text-left"><div className="flex justify-between"><span className="coffee-muted">Total</span><strong>₹{placedOrder.total}</strong></div><div className="flex justify-between mt-2"><span className="coffee-muted">Status</span><strong className="capitalize">{placedOrder.status}</strong></div><div className="flex justify-between mt-2"><span className="coffee-muted">Payment</span><strong>Cash on Delivery</strong></div></div><div className="grid sm:grid-cols-2 gap-3 mt-7"><button onClick={() => navigate("/my-orders")} className="coffee-button w-full justify-center">View orders</button><button onClick={() => { localStorage.removeItem("coffeehub_cart"); navigate("/"); }} className="coffee-button-outline w-full">Continue shopping</button></div></section></main>
+    <main className="coffee-page min-h-screen flex items-center justify-center px-5"><section className="coffee-card bg-white p-10 text-center max-w-lg"><div className="text-7xl">🎉</div><p className="text-[10px] uppercase tracking-[0.3em] text-[var(--coffee-brown)] mt-5">Order confirmed</p><h1 className="text-4xl font-bold coffee-heading mt-2">Thank you, {form.name.split(" ")[0]}!</h1><p className="coffee-muted mt-3">Your order <strong>#{placedOrder.id}</strong> has been placed successfully.</p><div className="rounded-2xl bg-[#fbf7f2] p-5 mt-7 text-left"><div className="flex justify-between"><span className="coffee-muted">Total</span><strong>₹{placedOrder.total}</strong></div><div className="flex justify-between mt-2"><span className="coffee-muted">Status</span><strong className="capitalize">{placedOrder.status}</strong></div><div className="flex justify-between mt-2"><span className="coffee-muted">Payment</span><strong>Cash on Delivery</strong></div></div><div className="grid sm:grid-cols-2 gap-3 mt-7"><button onClick={() => navigate("/my-orders")} className="coffee-button w-full justify-center">View orders</button><button onClick={() => navigate("/")} className="coffee-button-outline w-full">Continue shopping</button></div></section></main>
   );
 
   const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
@@ -69,16 +48,17 @@ function Checkout() {
   const placeOrder = async () => {
     setError(""); setLoading(true);
     try {
-      const token = localStorage.getItem("customer_access_token");
-      const response = await fetch("http://127.0.0.1:8000/orders/", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ customer_name: form.name.trim(), phone: form.phone.trim(), address: form.address.trim(), city: form.city.trim(), pincode: form.pincode, payment_method: "cod", items: items.map((item) => ({ coffee_id: item.id, quantity: item.quantity })) }) });
-      const body = (await response.json().catch(() => ({}))) as ApiError & Partial<OrderResponse>;
-      if (!response.ok) { if (response.status === 401) { localStorage.removeItem("customer_access_token"); localStorage.removeItem("customer"); navigate("/customer-auth"); return; } throw new Error(getErrorMessage(body, "Unable to place order")); }
-      setPlacedOrder(body as OrderResponse); localStorage.removeItem("coffeehub_cart");
-    } catch (err) { setError(err instanceof Error ? err.message : "Unable to place order"); }
-    finally { setLoading(false); }
+      const order = await createOrder({ customer_name: form.name.trim(), phone: form.phone.trim(), address: form.address.trim(), city: form.city.trim(), pincode: form.pincode, payment_method: "cod", items: items.map((item) => ({ coffee_id: item.id, quantity: item.quantity })) });
+      localStorage.removeItem("coffeehub_cart");
+      setPlacedOrder(order);
+    } catch (err) {
+      const status = (err as Error & { status?: number }).status;
+      if (status === 401) { localStorage.removeItem("customer_access_token"); localStorage.removeItem("customer"); navigate("/customer-auth", { replace: true }); return; }
+      setError(err instanceof Error ? err.message : "Unable to place order");
+    } finally { setLoading(false); }
   };
 
-  const canSubmit = Boolean(form.name.trim() && form.phone.trim() && form.address.trim() && form.city.trim() && form.pincode.length === 6);
+  const canSubmit = Boolean(form.name.trim() && /^\d{10}$/.test(form.phone.trim()) && form.address.trim().length >= 5 && form.city.trim() && /^\d{6}$/.test(form.pincode));
 
   return (
     <main className="coffee-page min-h-screen py-12 px-5"><div className="coffee-container max-w-6xl mx-auto"><button onClick={() => navigate("/")} className="coffee-muted hover:text-[var(--coffee-brown)] mb-6">← Back to menu</button><div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-8 items-start">
