@@ -35,8 +35,9 @@ function HomePage() {
 }
 
 function isAdminToken(): boolean { const token = localStorage.getItem("access_token"); if (!token) return false; try { const payload = token.split(".")[1]; if (!payload) return false; const normalized = payload.replace(/-/g, "+").replace(/_/g, "/"); const json = decodeURIComponent(atob(normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), "=")).split("").map(char => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`).join("")); return JSON.parse(json).role === "admin"; } catch { return false; } }
-function ProtectedAdminPage({ children }: { children: ReactElement }) { return isAdminToken() ? children : <Navigate to="/customer-auth" replace />; }
+function ProtectedAdminPage({ children }: { children: ReactElement }) { return isAdminToken() ? <AdminShell>{children}</AdminShell> : <Navigate to="/customer-auth" replace />; }
 function ProtectedProfile() { return localStorage.getItem("customer_access_token") ? <Profile /> : <Navigate to="/customer-auth" replace />; }
+function AdminShell({ children }: { children: ReactElement }) { return <div className="coffee-admin-shell">{children}</div>; }
 
 function App() { return <Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<Navigate to="/customer-auth" replace />} /><Route path="/customer-auth" element={<CustomerAuth />} /><Route path="/checkout" element={<Checkout />} /><Route path="/my-orders" element={localStorage.getItem("customer_access_token") ? <MyOrders /> : <Navigate to="/customer-auth" replace />} /><Route path="/profile" element={<ProtectedProfile />} /><Route path="/dashboard" element={<ProtectedAdminPage><Dashboard /></ProtectedAdminPage>} /><Route path="/customers" element={<ProtectedAdminPage><Customers /></ProtectedAdminPage>} /><Route path="/coffees" element={<ProtectedAdminPage><CoffeeManagement /></ProtectedAdminPage>} /><Route path="/admin/orders" element={<ProtectedAdminPage><Orders /></ProtectedAdminPage>} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
 export default App;
