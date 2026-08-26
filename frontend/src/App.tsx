@@ -1,42 +1,14 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import "./App.css";
-import "./premium-theme.css";
-import "./admin-theme.css";
-import "./reference-pages.css";
-import "./premium-reference-overrides.css";
-import Home from "./pages/Home";
-import Menu from "./pages/Menu";
-import ProductDetails from "./pages/ProductDetails";
-import CustomerAuth from "./pages/CustomerAuth";
-import Checkout from "./pages/Checkout";
-import MyOrders from "./pages/MyOrders";
-import Profile from "./pages/Profile";
-import Dashboard from "./pages/Dashboard";
-import Customers from "./pages/admin/Customers";
-import CoffeeManagement from "./pages/admin/CoffeeManagement";
-import Orders from "./pages/admin/Orders";
-import Cart from "./pages/Cart";
-import OurStory from "./pages/OurStory";
-import Navbar from "./components/Navbar";
-import { getCoffees, type Coffee } from "./services/api";
-import { addServerCartItem } from "./services/cart";
+import "./App.css";import "./premium-theme.css";import "./admin-theme.css";import "./reference-pages.css";import "./premium-reference-overrides.css";
+import Home from "./pages/Home";import Menu from "./pages/Menu";import ProductDetails from "./pages/ProductDetails";import CustomerAuth from "./pages/CustomerAuth";import Checkout from "./pages/Checkout";import MyOrders from "./pages/MyOrders";import Profile from "./pages/Profile";import Dashboard from "./pages/Dashboard";import Customers from "./pages/admin/Customers";import CoffeeManagement from "./pages/admin/CoffeeManagement";import Orders from "./pages/admin/Orders";import Cart from "./pages/Cart";import OurStory from "./pages/OurStory";import Navbar from "./components/Navbar";import { getCoffees,type Coffee } from "./services/api";import { addServerCartItem } from "./services/cart";
 
 function isAdminToken(){const token=localStorage.getItem("access_token");if(!token)return false;try{const payload=token.split(".")[1];const normalized=payload.replace(/-/g,"+").replace(/_/g,"/");const json=decodeURIComponent(atob(normalized.padEnd(normalized.length+((4-normalized.length%4)%4),"=")).split("").map(c=>`%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`).join(""));return JSON.parse(json).role==="admin"}catch{return false}}
-function ProtectedAdminPage({children}:{children:ReactElement}){return isAdminToken()?<div className="coffee-admin-shell">{children}</div>:<Navigate to="/customer-auth" replace/>}
-function ProtectedProfile(){return localStorage.getItem("customer_access_token")?<Profile/>:<Navigate to="/customer-auth" replace/>}
+function ProtectedAdminPage({children}:{children:ReactElement}){return isAdminToken()?<div className="coffee-admin-shell">{children}</div>:<Navigate to="/customer-auth" replace/>}function ProtectedProfile(){return localStorage.getItem("customer_access_token")?<Profile/>:<Navigate to="/customer-auth" replace/>}
 
-function HomePage(){
- const [coffees,setCoffees]=useState<Coffee[]>([]); const [loading,setLoading]=useState(true); const [error,setError]=useState(""); const navigate=useNavigate();
- const load=()=>{setLoading(true);setError("");getCoffees().then(setCoffees).catch(()=>setError("Unable to load coffee menu")).finally(()=>setLoading(false))};
- useEffect(()=>{load()},[]);
- useEffect(()=>{const handler=async(event:Event)=>{const coffee=(event as CustomEvent<Coffee>).detail;if(!coffee)return;const token=localStorage.getItem("customer_access_token");if(token){try{const cart=await addServerCartItem(coffee.id,1);localStorage.setItem("coffeehub_cart",JSON.stringify(cart.items));window.dispatchEvent(new Event("coffeehub:cart-updated"));navigate("/cart");}catch(err){if((err as Error&{status?:number}).status===401){localStorage.removeItem("customer_access_token");localStorage.removeItem("customer");navigate("/customer-auth");}}}else{try{const items=JSON.parse(localStorage.getItem("coffeehub_cart")||"[]") as Array<Coffee&{quantity:number}>;const existing=items.find(i=>i.id===coffee.id);const next=existing?items.map(i=>i.id===coffee.id?{...i,quantity:i.quantity+1}:i):[...items,{...coffee,quantity:1}];localStorage.setItem("coffeehub_cart",JSON.stringify(next));window.dispatchEvent(new Event("coffeehub:cart-updated"));navigate("/cart");}catch{navigate("/cart")}}};window.addEventListener("coffeehub:add-to-cart",handler);return()=>window.removeEventListener("coffeehub:add-to-cart",handler)},[navigate]);
- if(loading)return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-5 animate-pulse">☕</div><p className="text-[var(--coffee-brown)]">Brewing your coffee menu...</p></div></div>;
- if(error)return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="coffee-card p-8 text-center"><div className="text-5xl">☕</div><h2 className="text-2xl font-bold coffee-heading mt-4">Something went wrong</h2><p className="coffee-muted mt-3">{error}</p><button onClick={load} className="coffee-button mt-6">Try Again</button></div></div>;
- return <><Navbar/><Home coffees={coffees} onLogin={()=>navigate("/customer-auth")}/></>;
-}
+function CartBridge(){const navigate=useNavigate();useEffect(()=>{const handler=async(event:Event)=>{const coffee=(event as CustomEvent<Coffee>).detail;if(!coffee)return;const token=localStorage.getItem("customer_access_token");try{if(token){const cart=await addServerCartItem(coffee.id,1);localStorage.setItem("coffeehub_cart",JSON.stringify(cart.items));}else{const items=JSON.parse(localStorage.getItem("coffeehub_cart")||"[]") as Array<Coffee&{quantity:number}>;const existing=items.find(i=>i.id===coffee.id);const next=existing?items.map(i=>i.id===coffee.id?{...i,quantity:i.quantity+1}:i):[...items,{...coffee,quantity:1}];localStorage.setItem("coffeehub_cart",JSON.stringify(next));}window.dispatchEvent(new Event("coffeehub:cart-updated"));navigate("/cart");}catch(err){if((err as Error&{status?:number}).status===401){localStorage.removeItem("customer_access_token");localStorage.removeItem("customer");navigate("/customer-auth")}else{navigate("/cart")}}};window.addEventListener("coffeehub:add-to-cart",handler);return()=>window.removeEventListener("coffeehub:add-to-cart",handler)},[navigate]);return null}
 
-function App(){return <Routes>
- <Route path="/" element={<HomePage/>}/><Route path="/menu" element={<Menu/>}/><Route path="/story" element={<OurStory/>}/><Route path="/product/:id" element={<ProductDetails/>}/><Route path="/cart" element={<Cart/>}/><Route path="/login" element={<Navigate to="/customer-auth" replace/>}/><Route path="/customer-auth" element={<CustomerAuth/>}/><Route path="/checkout" element={<Checkout/>}/><Route path="/my-orders" element={localStorage.getItem("customer_access_token")?<MyOrders/>:<Navigate to="/customer-auth" replace/>}/><Route path="/profile" element={<ProtectedProfile/>}/><Route path="/dashboard" element={<ProtectedAdminPage><Dashboard/></ProtectedAdminPage>}/><Route path="/customers" element={<ProtectedAdminPage><Customers/></ProtectedAdminPage>}/><Route path="/coffees" element={<ProtectedAdminPage><CoffeeManagement/></ProtectedAdminPage>}/><Route path="/admin/orders" element={<ProtectedAdminPage><Orders/></ProtectedAdminPage>}/><Route path="*" element={<Navigate to="/" replace/>}/>
- </Routes>}
+function HomePage(){const[coffees,setCoffees]=useState<Coffee[]>([]);const[loading,setLoading]=useState(true);const[error,setError]=useState("");const navigate=useNavigate();const load=()=>{setLoading(true);setError("");getCoffees().then(setCoffees).catch(()=>setError("Unable to load coffee menu")).finally(()=>setLoading(false))};useEffect(()=>{load()},[]);if(loading)return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-6xl mb-5 animate-pulse">☕</div><p className="text-[var(--coffee-brown)]">Brewing your coffee menu...</p></div></div>;if(error)return <div className="coffee-page min-h-screen flex items-center justify-center"><div className="coffee-card p-8 text-center"><div className="text-5xl">☕</div><h2 className="text-2xl font-bold coffee-heading mt-4">Something went wrong</h2><p className="coffee-muted mt-3">{error}</p><button onClick={load} className="coffee-button mt-6">Try Again</button></div></div>;return <><Navbar/><Home coffees={coffees} onLogin={()=>navigate("/customer-auth")}/></>}
+
+function App(){return <><CartBridge/><Routes><Route path="/" element={<HomePage/>}/><Route path="/menu" element={<Menu/>}/><Route path="/story" element={<OurStory/>}/><Route path="/product/:id" element={<ProductDetails/>}/><Route path="/cart" element={<Cart/>}/><Route path="/login" element={<Navigate to="/customer-auth" replace/>}/><Route path="/customer-auth" element={<CustomerAuth/>}/><Route path="/checkout" element={<Checkout/>}/><Route path="/my-orders" element={localStorage.getItem("customer_access_token")?<MyOrders/>:<Navigate to="/customer-auth" replace/>}/><Route path="/profile" element={<ProtectedProfile/>}/><Route path="/dashboard" element={<ProtectedAdminPage><Dashboard/></ProtectedAdminPage>}/><Route path="/customers" element={<ProtectedAdminPage><Customers/></ProtectedAdminPage>}/><Route path="/coffees" element={<ProtectedAdminPage><CoffeeManagement/></ProtectedAdminPage>}/><Route path="/admin/orders" element={<ProtectedAdminPage><Orders/></ProtectedAdminPage>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></>}
 export default App;
