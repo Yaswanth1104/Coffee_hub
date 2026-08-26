@@ -8,6 +8,7 @@ from app.database.connection import Base, engine, ensure_legacy_columns
 from app.models.admin import Admin
 from app.models.customer_account import CustomerAccount
 from app.models.order import Order, OrderItem
+from app.models.cart import CartItem
 from app.core.security import hash_password, verify_password
 
 from app.routes.customer import router as customer_router
@@ -17,12 +18,11 @@ from app.routes.admin import router as admin_router
 from app.routes.coffee import router as coffee_router
 from app.routes.order import router as order_router
 from app.routes.admin_orders import router as admin_orders_router
+from app.routes.cart import router as cart_router
 
 
-# Keep existing local databases compatible with the current SQLAlchemy models.
 Base.metadata.create_all(bind=engine)
 ensure_legacy_columns()
-
 
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "yashuchowdary565@gmail.com").strip().lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
@@ -33,49 +33,31 @@ def ensure_single_admin() -> None:
     """Create and normalize exactly one CoffeeHub administrator."""
     with Session(engine) as db:
         admins = db.query(Admin).order_by(Admin.id.asc()).all()
-
         if not admins:
             if not ADMIN_PASSWORD:
                 raise RuntimeError("No administrator exists. Set ADMIN_PASSWORD in backend/.env.")
-            db.add(
-                Admin(
-                    name=ADMIN_NAME,
-                    email=ADMIN_EMAIL,
-                    password=hash_password(ADMIN_PASSWORD),
-                )
-            )
+            db.add(Admin(name=ADMIN_NAME, email=ADMIN_EMAIL, password=hash_password(ADMIN_PASSWORD)))
             db.commit()
             return
 
-        # Keep the first account as the single administrator.
         admin = admins[0]
         changed = False
-
         if admin.email != ADMIN_EMAIL:
             admin.email = ADMIN_EMAIL
             changed = True
-
         if not admin.name:
             admin.name = ADMIN_NAME
             changed = True
-
-        # The password in backend/.env is the local administrator credential.
-        # If an older database contains a different hash, synchronize it once
-        # instead of forcing the user to manually edit the database.
         if ADMIN_PASSWORD:
             try:
                 password_matches = verify_password(ADMIN_PASSWORD, admin.password)
             except Exception:
                 password_matches = False
-
             if not password_matches:
                 admin.password = hash_password(ADMIN_PASSWORD)
                 changed = True
-
         if changed:
             db.commit()
-
-        # Remove any legacy extra administrator rows.
         for extra_admin in admins[1:]:
             db.delete(extra_admin)
         if len(admins) > 1:
@@ -84,25 +66,19 @@ def ensure_single_admin() -> None:
 
 ensure_single_admin()
 
-
 app = FastAPI(
     title="CoffeeHub API",
     version="1.0.0",
     description="CoffeeHub Customer & Admin Management System",
 )
 
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 app.include_router(customer_router)
 app.include_router(customer_auth_router)
@@ -111,6 +87,7 @@ app.include_router(admin_router)
 app.include_router(coffee_router)
 app.include_router(order_router)
 app.include_router(admin_orders_router)
+app.include_router(cart_router)
 
 
 @app.get("/")
