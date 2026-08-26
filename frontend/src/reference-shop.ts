@@ -8,9 +8,37 @@ export const coffeeImages: Record<string, string> = {
   mocha: "https://images.unsplash.com/photo-1579493519248-3d7c8c7c2b10?auto=format&fit=crop&w=900&q=90",
   espresso: "https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?auto=format&fit=crop&w=900&q=90"
 };
+
 export const fallbackImage = "/coffee-images/coffee-default.svg";
-export function coffeeImage(name: string) { return coffeeImages[name.trim().toLowerCase()] || fallbackImage; }
-export function readCart(): Array<Coffee & { quantity: number }> { try { return JSON.parse(localStorage.getItem("coffeehub_cart") || "[]"); } catch { return []; } }
-export function saveCart(items: Array<Coffee & { quantity: number }>) { localStorage.setItem("coffeehub_cart", JSON.stringify(items)); window.dispatchEvent(new Event("coffeehub:cart-updated")); }
-export function addCoffee(coffee: Coffee) { const items = readCart(); const existing = items.find(i => i.id === coffee.id); saveCart(existing ? items.map(i => i.id === coffee.id ? { ...i, quantity: i.quantity + 1 } : i) : [...items, { ...coffee, quantity: 1 }]); }
+
+export function coffeeImage(name?: string | null) {
+  const key = typeof name === "string" ? name.trim().toLowerCase() : "";
+  return coffeeImages[key] || fallbackImage;
+}
+
+export function readCart(): Array<Coffee & { quantity: number }> {
+  try {
+    return JSON.parse(localStorage.getItem("coffeehub_cart") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+export function saveCart(items: Array<Coffee & { quantity: number }>) {
+  localStorage.setItem("coffeehub_cart", JSON.stringify(items));
+  window.dispatchEvent(new Event("coffeehub:cart-updated"));
+}
+
+export function addCoffee(coffee: Coffee) {
+  const items = readCart();
+  const existing = items.find((i) => i.id === coffee.id);
+  saveCart(
+    existing
+      ? items.map((i) =>
+          i.id === coffee.id ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      : [...items, { ...coffee, quantity: 1 }]
+  );
+}
+
 export const popularNames = ["Cappuccino", "Americano", "Latte", "Cold Brew", "Mocha"];
