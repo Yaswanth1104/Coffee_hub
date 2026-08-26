@@ -1,6 +1,21 @@
 import { API_BASE_URL, type Coffee } from "./api";
-export interface ServerCartItem extends Coffee { id:number; coffee_id:number; quantity:number; }
-export interface ServerCart { items:ServerCartItem[]; subtotal:number; total_items:number; }
+
+export interface ServerCartItem extends Omit<Coffee, "name"> {
+  id: number;
+  coffee_id: number;
+  coffee_name: string;
+  name?: string;
+  quantity: number;
+}
+
+export interface ServerCart {
+  items: ServerCartItem[];
+  subtotal: number;
+  total_items: number;
+}
+
 function token(){return localStorage.getItem("customer_access_token")}
+
 async function request(path:string,options:RequestInit={}):Promise<ServerCart>{const accessToken=token();if(!accessToken)throw Object.assign(new Error("Sign in required"),{status:401});const response=await fetch(`${API_BASE_URL}${path}`,{...options,headers:{"Content-Type":"application/json",...(options.headers||{}),Authorization:`Bearer ${accessToken}`}});if(!response.ok){const body=await response.json().catch(()=>({}));throw Object.assign(new Error(body.detail||"Cart request failed"),{status:response.status})}return response.json()}
+
 export const getServerCart=()=>request("/cart/");export const addServerCartItem=(coffee_id:number,quantity=1)=>request("/cart/items",{method:"POST",body:JSON.stringify({coffee_id,quantity})});export const updateServerCartItem=(coffee_id:number,quantity:number)=>request(`/cart/items/${coffee_id}`,{method:"PUT",body:JSON.stringify({coffee_id,quantity})});export const removeServerCartItem=(coffee_id:number)=>request(`/cart/items/${coffee_id}`,{method:"DELETE"});export const clearServerCart=()=>request("/cart/",{method:"DELETE"});
