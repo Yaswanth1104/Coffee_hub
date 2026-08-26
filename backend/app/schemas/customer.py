@@ -10,6 +10,17 @@ class CustomerCreate(BaseModel):
     address: str | None = None
     city: str | None = None
     pincode: str | None = None
+    password: str | None = None
+
+
+class CustomerUpdate(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str | None = None
+    address: str | None = None
+    city: str | None = None
+    pincode: str | None = None
+    password: str | None = None
 
 
 class CustomerResponse(BaseModel):
