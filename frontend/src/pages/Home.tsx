@@ -1,56 +1,27 @@
 import { useMemo, useState } from "react";
-import CoffeeScene from "../components/CoffeeScene";
-import "../home-layout6.css";
+import "../reference-home.css";
 
 interface Coffee { id:number; name:string; description:string; price:number; category:string; is_available:boolean; }
 interface HomeProps { coffees:Coffee[]; onLogin:()=>void; }
+const imageMap:Record<string,string>={cappuccino:"/coffee-images/cappuccino.jpg",americano:"/coffee-images/americano.jpg",latte:"/coffee-images/latte.jpg","cold brew":"/coffee-images/cold-brew.jpg",mocha:"/coffee-images/mocha.jpg",espresso:"/coffee-images/americano.jpg"};
+const fallback="/coffee-images/coffee-default.svg";
+const getImage=(name:string)=>imageMap[name.trim().toLowerCase()]||fallback;
+const popularOrder=["Cappuccino","Americano","Latte","Cold Brew","Mocha"];
 
-const coffeeImageMap:Record<string,string>={
-  mocha:"/coffee-images/mocha.jpg", americano:"/coffee-images/americano.jpg", espresso:"/coffee-images/espresso.jpg",
-  "cold brew":"/coffee-images/cold-brew.jpg", latte:"/coffee-images/latte.jpg", cappuccino:"/coffee-images/cappuccino.jpg",
-  macchiato:"/coffee-images/macchiato.jpg", "iced coffee":"/coffee-images/iced-coffee.jpg"
-};
-const defaultCoffeeImage="/coffee-images/coffee-default.svg";
-function getCoffeeImage(name:string){return coffeeImageMap[name.trim().toLowerCase()]||defaultCoffeeImage;}
-
-function Home({coffees,onLogin}:HomeProps){
-  const[activeCategory,setActiveCategory]=useState("All");
-  const availableCoffees=coffees.filter(c=>c.is_available);
-  const categories=useMemo(()=>["All",...Array.from(new Set(availableCoffees.map(c=>c.category).filter(Boolean)))],[availableCoffees]);
-  const filteredCoffees=useMemo(()=>activeCategory==="All"?availableCoffees:availableCoffees.filter(c=>c.category===activeCategory),[activeCategory,availableCoffees]);
-
-  return <main className="coffee-page home-layout6">
-    <section className="layout6-shell layout6-hero">
-      <div className="layout6-rating"><strong>Google:</strong><span className="layout6-stars">★ ★ ★ ★ ★</span><span>(4.9)</span></div>
-      <h1>Brewed to perfection</h1>
-      <p className="layout6-hero-subtitle">Your perfect spot for coffee, pastries, and more.</p>
-      <div className="layout6-hero-actions"><a href="#menu" className="layout6-explore">Explore menu <span>↗</span></a></div>
-      <div className="layout6-visual" aria-label="Animated 3D CoffeeHub coffee scene">
-        <div className="layout6-halo"/>
-        <span className="layout6-leaf one"/><span className="layout6-leaf two"/><span className="layout6-leaf three"/>
-        <div className="layout6-scene"><CoffeeScene/></div>
-        <div className="layout6-note">Freshly brewed · made daily</div>
-      </div>
-      <div className="layout6-scroll-hint"><span/>Scroll to explore <span/></div>
-    </section>
-
-    <section className="home-v2-marquee" aria-label="CoffeeHub values"><div>CAREFULLY SOURCED <span>✦</span> SMALL-BATCH ROASTED <span>✦</span> FRESHLY BREWED <span>✦</span> MADE FOR SLOW MOMENTS <span>✦</span></div></section>
-
-    <section id="menu" className="home-v2-menu layout6-menu-intro">
-      <div className="coffee-container">
-        <div className="home-v2-section-head"><div><p className="home-v2-kicker">THE COFFEE BAR</p><h2>Pick your perfect cup.</h2></div><p>From strong espresso shots to smooth cold brews — every cup is prepared fresh.</p></div>
-        {availableCoffees.length>0&&<div className="home-v2-tabs" role="tablist" aria-label="Coffee categories">{categories.map(category=><button key={category} type="button" onClick={()=>setActiveCategory(category)} aria-selected={activeCategory===category} className={activeCategory===category?"active":""}>{category}</button>)}</div>}
-        {filteredCoffees.length===0?<div className="coffee-card p-10 text-center"><div className="text-5xl mb-4">☕</div><h3 className="text-xl font-bold coffee-heading">Menu coming soon</h3><p className="coffee-muted mt-2">Our coffee menu is being prepared.</p></div>:<div className="home-v2-menu-grid">
-          {filteredCoffees.map((coffee,index)=><article key={coffee.id} className={`home-v2-coffee-card ${index===0?"featured":""}`}>
-            <div className="home-v2-card-image"><img src={getCoffeeImage(coffee.name)} alt={`${coffee.name} coffee`} onError={event=>{const image=event.currentTarget;if(image.src.endsWith("coffee-default.svg"))return;image.src=defaultCoffeeImage}}/><span className="home-v2-category">{coffee.category}</span><span className="home-v2-price">₹{coffee.price}</span></div>
-            <div className="home-v2-card-body"><div><h3>{coffee.name}</h3><p>{coffee.description}</p></div><div className="home-v2-card-footer"><span><i/> Available</span><button type="button" onClick={()=>window.dispatchEvent(new CustomEvent("coffeehub:add-to-cart",{detail:coffee}))}>Add to cart <b>+</b></button></div></div>
-          </article>)}
-        </div>}
-        {availableCoffees.length>0&&<p className="home-v2-count">Showing {filteredCoffees.length} of {availableCoffees.length} available coffees</p>}
-      </div>
-    </section>
-
-    <section id="about" className="home-v2-about"><div className="coffee-container home-v2-about-grid"><div className="home-v2-about-image"><div className="home-v2-about-card"><span>COFFEEHUB</span><strong>Good coffee<br/><em>takes its time.</em></strong><small>Roasted with intention · brewed with care</small></div></div><div className="home-v2-about-copy"><p className="home-v2-kicker">OUR STORY</p><h2>More than coffee.<br/><em>It's a moment.</em></h2><p>At CoffeeHub, we believe great coffee should slow things down. We source thoughtfully, roast in small batches, and make every cup with the kind of care you'd expect from your favourite neighbourhood café.</p><div className="home-v2-story-points"><div><strong>01</strong><span>Thoughtful sourcing</span></div><div><strong>02</strong><span>Small-batch roasting</span></div><div><strong>03</strong><span>Freshly brewed</span></div></div><button onClick={onLogin} className="coffee-button">Join CoffeeHub <span>→</span></button></div></div></section>
-  </main>;
+export default function Home({coffees,onLogin}:HomeProps){
+ const[activeCategory,setActiveCategory]=useState("All");
+ const available=useMemo(()=>coffees.filter(c=>c.is_available),[coffees]);
+ const categories=useMemo(()=>["All",...Array.from(new Set(available.map(c=>c.category).filter(Boolean)))],[available]);
+ const filtered=useMemo(()=>activeCategory==="All"?available:available.filter(c=>c.category===activeCategory),[activeCategory,available]);
+ const popular=useMemo(()=>{const ordered=popularOrder.map(n=>available.find(c=>c.name.toLowerCase()===n.toLowerCase())).filter(Boolean) as Coffee[];return ordered.length?ordered:available.slice(0,5)},[available]);
+ const addToCart=(coffee:Coffee)=>window.dispatchEvent(new CustomEvent("coffeehub:add-to-cart",{detail:coffee}));
+ const scrollTo=(id:string)=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"});
+ return <main className="reference-home">
+  <section className="ref-hero" id="home"><div className="ref-hero-backdrop"/><div className="ref-hero-content"><div className="ref-rating"><span className="google-g">G</span><strong>Google:</strong><span className="ref-stars">★★★★★</span><b>(4.9)</b></div><h1>Brewed to<br/><span>perfection</span></h1><p>Your perfect spot for coffee, pastries, and more.</p><div className="ref-hero-actions"><button className="ref-primary" onClick={()=>scrollTo("menu")}>Explore menu <span>→</span></button><button className="ref-story-play" onClick={()=>scrollTo("story")} aria-label="Watch our story">▶</button><button className="ref-story-link" onClick={()=>scrollTo("story")}>Watch our story</button></div></div><div className="ref-hero-art"><img src="/coffee-images/hero-coffee.jpg" alt="Coffee cup with latte art" onError={e=>{e.currentTarget.src=fallback}}/><span className="ref-floating-bean bean-1">●</span><span className="ref-floating-bean bean-2">●</span><span className="ref-floating-bean bean-3">●</span><span className="ref-leaf leaf-1">◆</span><span className="ref-leaf leaf-2">◆</span><div className="ref-quality">Premium<br/>Quality <i>⌁</i></div></div></section>
+  <section className="ref-values" aria-label="CoffeeHub values"><div><span>◉</span><article><strong>Premium Beans</strong><small>Sourced from the best<br/>coffee regions.</small></article></div><div><span>♨</span><article><strong>Expertly Roasted</strong><small>Roasted to perfection<br/>for rich flavor.</small></article></div><div><span>☕</span><article><strong>Freshly Brewed</strong><small>Brewed fresh for you,<br/>every single time.</small></article></div><div><span>♥</span><article><strong>Made with Love</strong><small>Crafted with care<br/>and passion.</small></article></div></section>
+  <section className="ref-popular" id="popular"><div className="ref-section-title"><h2>Our Popular Picks <em>⌁</em></h2><button onClick={()=>scrollTo("menu")}>View all menu <span>→</span></button></div><div className="ref-popular-grid">{popular.map(c=><article className="ref-product-card" key={c.id}><div className="ref-product-image"><img src={getImage(c.name)} alt={c.name} onError={e=>{e.currentTarget.src=fallback}}/><button className="ref-heart" aria-label={`Favourite ${c.name}`}>♡</button><span>{c.category||"Coffee"}</span></div><div className="ref-product-body"><h3>{c.name}</h3><p>{c.description}</p><strong>₹{c.price}</strong><button className="ref-add-round" onClick={()=>addToCart(c)} aria-label={`Add ${c.name} to cart`}>+</button></div></article>)}</div></section>
+  <section className="ref-menu" id="menu"><div className="ref-menu-head"><div><small>THE COFFEE BAR</small><h2>Pick your perfect cup.</h2></div><p>Freshly prepared favorites, from bold espresso to smooth cold brews.</p></div><div className="ref-tabs">{categories.map(c=><button key={c} className={activeCategory===c?"active":""} onClick={()=>setActiveCategory(c)}>{c}</button>)}</div><div className="ref-menu-grid">{filtered.map(c=><article className="ref-menu-card" key={c.id}><img src={getImage(c.name)} alt={c.name} onError={e=>{e.currentTarget.src=fallback}}/><div><span>{c.category}</span><h3>{c.name}</h3><p>{c.description}</p><strong>₹{c.price}</strong><button onClick={()=>addToCart(c)}>Add to cart <b>+</b></button></div></article>)}</div>{!filtered.length&&<div className="ref-empty">No coffee available in this category.</div>}</section>
+  <section className="ref-promo" id="contact"><div className="ref-promo-copy"><strong>10%</strong><span><b>Get 10% off on your first order!</b><small>Join our coffee community and enjoy exclusive offers.</small></span></div><button onClick={onLogin}>Join Now <span>→</span></button></section>
+  <section className="ref-story" id="story"><div className="ref-story-card"><span>COFFEEHUB</span><strong>Good coffee<br/><i>takes its time.</i></strong><small>Roasted with intention · brewed with care</small></div><div><small>OUR STORY</small><h2>More than coffee.<br/><i>It's a moment.</i></h2><p>At CoffeeHub, we believe great coffee should slow things down. We source thoughtfully, roast in small batches, and make every cup with the kind of care you'd expect from your favourite neighbourhood café.</p><button className="ref-primary" onClick={onLogin}>Join CoffeeHub <span>→</span></button></div></section>
+ </main>;
 }
-export default Home;
