@@ -1,5 +1,5 @@
 import { API_BASE_URL, type Coffee } from "./api";
-export interface ServerCartItem extends Coffee { cart_item_id:number; coffee_id:number; quantity:number; }
+export interface ServerCartItem extends Coffee { id:number; coffee_id:number; quantity:number; }
 export interface ServerCart { items:ServerCartItem[]; subtotal:number; total_items:number; }
 function token(){return localStorage.getItem("customer_access_token")}
 async function request(path:string,options:RequestInit={}):Promise<ServerCart>{const accessToken=token();if(!accessToken)throw Object.assign(new Error("Sign in required"),{status:401});const response=await fetch(`${API_BASE_URL}${path}`,{...options,headers:{"Content-Type":"application/json",...(options.headers||{}),Authorization:`Bearer ${accessToken}`}});if(!response.ok){const body=await response.json().catch(()=>({}));throw Object.assign(new Error(body.detail||"Cart request failed"),{status:response.status})}return response.json()}
