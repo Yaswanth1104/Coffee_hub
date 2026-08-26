@@ -1,0 +1,31 @@
+:root{--ch-cream:#f4eadc;--ch-paper:#fffaf3;--ch-brown:#4a1f0b;--ch-ink:#25130b;--ch-muted:#76675d;--ch-line:#ead8c3}
+.reference-home{background:var(--ch-cream)!important;color:var(--ch-ink)!important;font-family:Arial,sans-serif!important}
+.reference-home .ref-hero{max-width:none!important;margin:0!important;min-height:570px!important;padding:88px max(6vw,72px) 34px!important;grid-template-columns:43% 57%!important;background:linear-gradient(115deg,#fffaf4 0%,#f7ebdc 50%,#ead0ad 100%)!important;border-radius:0 0 0 0!important}
+.reference-home .ref-hero-backdrop{background:radial-gradient(circle at 75% 45%,rgba(255,221,170,.9) 0,rgba(255,221,170,0) 32%),linear-gradient(90deg,rgba(255,251,246,.98),rgba(248,235,218,.72) 55%,rgba(210,159,103,.18))!important}
+.reference-home .ref-hero-content{max-width:560px;align-self:center;position:relative;z-index:5}
+.reference-home .ref-rating{padding:9px 14px!important;font-size:13px!important;background:#fffdf9!important}
+.reference-home .ref-hero h1{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(62px,6.4vw,94px)!important;line-height:.86!important;letter-spacing:-.065em!important;margin:26px 0 24px!important;color:#3b1708!important}
+.reference-home .ref-hero-content>p{font-size:18px!important;line-height:1.55!important;max-width:390px!important;margin-bottom:28px!important}
+.reference-home .ref-hero-art{min-height:500px!important;overflow:visible!important}
+.reference-home .ref-hero-art img{width:min(690px,120%)!important;height:500px!important;max-height:none!important;object-fit:cover!important;border-radius:48% 48% 25% 25%!important;filter:drop-shadow(0 30px 30px rgba(72,31,9,.22))!important;transform:scale(1.08)!important}
+.reference-home .ref-quality{display:none!important}
+.reference-home .ref-floating-bean{font-size:30px!important}
+.reference-home .ref-leaf{font-size:38px!important}
+.reference-home .ref-values{max-width:calc(100% - 140px)!important;margin:-28px auto 0!important;padding:18px 24px!important;border-radius:24px!important;background:#fffaf4!important}
+.reference-home .ref-values>div{padding:12px 22px!important}
+.reference-home .ref-values>div>span{background:#f3dfc5!important}
+.reference-home .ref-popular{max-width:calc(100% - 140px)!important;padding:34px 0 28px!important}
+.reference-home .ref-section-title h2,.reference-home .ref-menu-head h2,.reference-home .ref-story h2{font-family:Georgia,"Times New Roman",serif!important;color:#301509!important}
+.reference-home .ref-popular-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:18px!important}
+.reference-home .ref-product-card{border-radius:16px!important;background:#fffaf3!important}
+.reference-home .ref-product-image{height:155px!important}
+.reference-home .ref-menu{padding:78px max(7vw,70px)!important;background:#fffaf4!important}
+.reference-home .ref-menu-head{max-width:1220px;margin:0 auto!important}
+.reference-home .ref-tabs,.reference-home .ref-menu-grid,.reference-home .ref-empty{max-width:1220px;margin-left:auto!important;margin-right:auto!important}
+.reference-home .ref-menu-grid{grid-template-columns:repeat(3,1fr)!important}
+.reference-home .ref-menu-card{min-height:235px!important;border-radius:20px!important}
+.reference-home .ref-promo{max-width:calc(100% - 140px)!important;margin:28px auto 72px!important;border-radius:20px!important;padding:22px 38px!important}
+.reference-home .ref-story{padding:82px max(7vw,70px)!important;background:#ead8bb!important}
+.reference-home .ref-story>div{max-width:610px}
+@media(max-width:1000px){.reference-home .ref-hero{grid-template-columns:1fr!important;text-align:center!important;padding-left:6%!important;padding-right:6%!important}.reference-home .ref-hero-content{align-items:center;display:flex;flex-direction:column}.reference-home .ref-hero-art{min-height:420px!important}.reference-home .ref-values,.reference-home .ref-popular,.reference-home .ref-promo{max-width:calc(100% - 36px)!important}.reference-home .ref-popular-grid{grid-template-columns:repeat(3,1fr)!important}.reference-home .ref-menu{padding-left:18px!important;padding-right:18px!important}}
+@media(max-width:650px){.reference-home .ref-hero h1{font-size:56px!important}.reference-home .ref-hero-art{min-height:330px!important}.reference-home .ref-hero-art img{height:330px!important;width:115%!important}.reference-home .ref-popular-grid{grid-template-columns:1fr 1fr!important}.reference-home .ref-menu-grid{grid-template-columns:1fr!important}.reference-home .ref-values{grid-template-columns:1fr!important}.reference-home .ref-story{grid-template-columns:1fr!important}}
