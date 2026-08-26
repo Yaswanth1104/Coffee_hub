@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import CoffeeScene from "../components/CoffeeScene";
+import "../home-layout6.css";
 
 interface Coffee { id:number; name:string; description:string; price:number; category:string; is_available:boolean; }
 interface HomeProps { coffees:Coffee[]; onLogin:()=>void; }
@@ -17,30 +18,25 @@ function Home({coffees,onLogin}:HomeProps){
   const availableCoffees=coffees.filter(c=>c.is_available);
   const categories=useMemo(()=>["All",...Array.from(new Set(availableCoffees.map(c=>c.category).filter(Boolean)))],[availableCoffees]);
   const filteredCoffees=useMemo(()=>activeCategory==="All"?availableCoffees:availableCoffees.filter(c=>c.category===activeCategory),[activeCategory,availableCoffees]);
-  const featured=filteredCoffees[0];
 
-  return <main className="coffee-page home-v2 overflow-hidden">
-    <section className="home-v2-hero">
-      <div className="coffee-container home-v2-hero-grid">
-        <div className="home-v2-copy">
-          <div className="home-v2-eyebrow"><span/>SPECIALTY COFFEE / EST. 2026</div>
-          <h1>Slow mornings.<br/><em>Bold coffee.</em><br/>Good company.</h1>
-          <p>Small-batch roasted beans, carefully brewed for people who believe a coffee break should feel like a little escape.</p>
-          <div className="home-v2-actions"><a href="#menu" className="coffee-button">Explore the menu <span>↗</span></a><a href="#about" className="home-v2-text-link">Our story <span>↓</span></a></div>
-          <div className="home-v2-proof"><div><strong>5+</strong><span>Fresh brews</span></div><div><strong>100%</strong><span>Made to order</span></div><div><strong>2026</strong><span>Our first chapter</span></div></div>
-        </div>
-        <div className="home-v2-visual">
-          <div className="home-v2-orbit orbit-one"/><div className="home-v2-orbit orbit-two"/>
-          <div className="home-v2-scene"><CoffeeScene/></div>
-          <div className="home-v2-sticker"><span>CRAFTED DAILY</span><strong>Fresh.<br/>Warm.<br/>Yours.</strong></div>
-          <div className="home-v2-bean bean-one">●</div><div className="home-v2-bean bean-two">●</div>
-        </div>
+  return <main className="coffee-page home-layout6">
+    <section className="layout6-shell layout6-hero">
+      <div className="layout6-rating"><strong>Google:</strong><span className="layout6-stars">★ ★ ★ ★ ★</span><span>(4.9)</span></div>
+      <h1>Brewed to perfection</h1>
+      <p className="layout6-hero-subtitle">Your perfect spot for coffee, pastries, and more.</p>
+      <div className="layout6-hero-actions"><a href="#menu" className="layout6-explore">Explore menu <span>↗</span></a></div>
+      <div className="layout6-visual" aria-label="Animated 3D CoffeeHub coffee scene">
+        <div className="layout6-halo"/>
+        <span className="layout6-leaf one"/><span className="layout6-leaf two"/><span className="layout6-leaf three"/>
+        <div className="layout6-scene"><CoffeeScene/></div>
+        <div className="layout6-note">Freshly brewed · made daily</div>
       </div>
+      <div className="layout6-scroll-hint"><span/>Scroll to explore <span/></div>
     </section>
 
     <section className="home-v2-marquee" aria-label="CoffeeHub values"><div>CAREFULLY SOURCED <span>✦</span> SMALL-BATCH ROASTED <span>✦</span> FRESHLY BREWED <span>✦</span> MADE FOR SLOW MOMENTS <span>✦</span></div></section>
 
-    <section id="menu" className="home-v2-menu">
+    <section id="menu" className="home-v2-menu layout6-menu-intro">
       <div className="coffee-container">
         <div className="home-v2-section-head"><div><p className="home-v2-kicker">THE COFFEE BAR</p><h2>Pick your perfect cup.</h2></div><p>From strong espresso shots to smooth cold brews — every cup is prepared fresh.</p></div>
         {availableCoffees.length>0&&<div className="home-v2-tabs" role="tablist" aria-label="Coffee categories">{categories.map(category=><button key={category} type="button" onClick={()=>setActiveCategory(category)} aria-selected={activeCategory===category} className={activeCategory===category?"active":""}>{category}</button>)}</div>}
