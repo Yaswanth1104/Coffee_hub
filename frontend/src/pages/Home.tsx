@@ -53,19 +53,12 @@ export default function Home({ coffees, onLogin }: HomeProps) {
             <b>(4.9)</b>
           </div>
           <p className="ref-eyebrow">GOOD COFFEE · BETTER DAYS</p>
-          <h1>Brewed to<br /><em>perfection</em><span className="ref-leaf-mark">◆</span></h1>
-          <p className="ref-hero-copy">Your perfect spot for coffee, pastries, and more.</p>
+          <h1>Brewed to<br /><em>perfection</em><span className="ref-leaf-mark">●</span></h1>
+          <p className="ref-hero-copy">Your perfect spot for coffee,<br className="desktop-break" /> pastries, and more.</p>
           <div className="ref-hero-actions">
             <button className="ref-primary" onClick={() => navigate("/menu")}>Explore menu <span>→</span></button>
             <button className="ref-story-play" onClick={() => navigate("/story")} aria-label="Watch our story">▶</button>
             <button className="ref-story-link" onClick={() => navigate("/story")}>Watch our story</button>
-          </div>
-        </div>
-
-        <div className="ref-hero-art" aria-label="CoffeeHub specialty coffee">
-          <div className="ref-hero-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1400&q=92" alt="Freshly brewed specialty coffee in a warm cafe setting" />
-            <div className="ref-photo-overlay" />
           </div>
         </div>
       </section>
