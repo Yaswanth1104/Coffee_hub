@@ -16,10 +16,10 @@ interface HomeProps {
   onLogin: () => void;
 }
 
-// Natural hero photograph. It is rendered directly into the hero background area
-// and softly masked so there is no visible image/card rectangle.
+// Warm natural hero photograph. It sits directly in the hero composition and
+// is softly faded at the edges so it blends into the CoffeeHub cream background.
 const heroImage =
-  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=92";
+  "https://images.unsplash.com/photo-1721116858340-d955652c2fc8?auto=format&fit=crop&w=1400&q=90";
 
 const imageMap: Record<string, string> = {
   cappuccino: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=1100&q=90",
