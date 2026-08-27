@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../reference-home.css";
+import heroImage from "../assets/hero.png";
 
 interface Coffee {
   id: number;
@@ -60,6 +61,11 @@ export default function Home({ coffees, onLogin }: HomeProps) {
             <button className="ref-story-play" onClick={() => navigate("/story")} aria-label="Watch our story">▶</button>
             <button className="ref-story-link" onClick={() => navigate("/story")}>Watch our story</button>
           </div>
+        </div>
+
+        <div className="ref-hero-media" aria-hidden="true">
+          <div className="ref-hero-glow" />
+          <img src={heroImage} alt="" />
         </div>
       </section>
 
