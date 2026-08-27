@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "../reference-home.css";
-import heroImage from "../assets/hero.png";
 
 interface Coffee {
   id: number;
@@ -16,6 +15,11 @@ interface HomeProps {
   coffees: Coffee[];
   onLogin: () => void;
 }
+
+// Natural hero photograph. It is rendered directly into the hero background area
+// and softly masked so there is no visible image/card rectangle.
+const heroImage =
+  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=92";
 
 const imageMap: Record<string, string> = {
   cappuccino: "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=1100&q=90",
