@@ -57,21 +57,16 @@ export default function Home({ coffees, onLogin }: HomeProps) {
           <p className="ref-hero-copy">Your perfect spot for coffee, pastries, and more.</p>
           <div className="ref-hero-actions">
             <button className="ref-primary" onClick={() => navigate("/menu")}>Explore menu <span>→</span></button>
-            <button className="ref-story-play" onClick={() => navigate("/menu")} aria-label="Watch our story">▶</button>
-            <button className="ref-story-link" onClick={() => navigate("/menu")}>Watch our story</button>
+            <button className="ref-story-play" onClick={() => navigate("/story")} aria-label="Watch our story">▶</button>
+            <button className="ref-story-link" onClick={() => navigate("/story")}>Watch our story</button>
           </div>
         </div>
 
         <div className="ref-hero-art" aria-label="CoffeeHub specialty coffee">
           <div className="ref-hero-photo-wrap">
-            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1500&q=92" alt="Freshly brewed specialty coffee" />
+            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1400&q=92" alt="Freshly brewed specialty coffee in a warm cafe setting" />
             <div className="ref-photo-overlay" />
           </div>
-          <span className="ref-bean bean-1">●</span>
-          <span className="ref-bean bean-2">●</span>
-          <span className="ref-bean bean-3">●</span>
-          <span className="ref-bean bean-4">◆</span>
-          <span className="ref-bean bean-5">●</span>
         </div>
       </section>
 
