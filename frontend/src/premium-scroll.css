@@ -1,0 +1,7 @@
+/* Scroll-driven presentation enhancements with a safe progressive enhancement fallback. */
+@keyframes coffeeSectionReveal{from{opacity:.22;transform:translateY(34px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@supports (animation-timeline:view()){
+  .professional-home>section:not(.home-hero){animation-name:coffeeSectionReveal;animation-duration:1ms;animation-fill-mode:both;animation-timing-function:linear;animation-timeline:view(block 82% 8%)}
+  .ref-menu-reference-card{animation-name:coffeeSectionReveal;animation-duration:1ms;animation-fill-mode:both;animation-timing-function:linear;animation-timeline:view(block 92% 4%)}
+}
+@media(prefers-reduced-motion:reduce){.professional-home>section,.ref-menu-reference-card{animation:none!important}}
